@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import ArticleCard from '../components/ArticleCard';
+import AdBanner from '../components/AdBanner';
 import { useGetAllNews, useGetNewsByCategory } from '../hooks/useQueries';
 import { NewsCategory } from '../backend';
 
@@ -103,6 +104,11 @@ export default function HomePage() {
             </p>
           </section>
         )}
+
+        {/* ── LEADERBOARD AD BANNER ── */}
+        <div className="mb-6">
+          <AdBanner adSlot="1234567890" adFormat="horizontal" />
+        </div>
 
         {/* ── MAIN CONTENT + SIDEBAR ── */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">

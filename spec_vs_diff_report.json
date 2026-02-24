@@ -1,40 +1,16 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T23:10:27.676Z",
-  "summary": "The diff addresses REQ-1 by fixing the article submission flow on the Admin page. The backend addNews function is properly defined with all required parameters and 7-day expiry logic. The frontend useAddNews hook correctly passes all parameters in the right order with null imageUrl handling. The AdminPage includes form validation with inline error/success messages, actor readiness checks, and query invalidation on success so the new article appears in the list. All acceptance criteria appear to be addressed.",
+  "generatedAt": "2026-02-24T23:38:49.881Z",
+  "summary": "The diff implements both REQ-1 and REQ-2 effectively. A new ActorLoadingGuard component wraps the app's Outlet, showing a loading spinner during actor initialization and a user-friendly error state with a retry button when the actor fails to initialize. The useQueries hooks are updated to guard against undefined/null actor and merge actorFetching into isLoading. All acceptance criteria appear to be met.",
   "missing_requirements": [],
-  "hallucinated_features": [
-    {
-      "description": "deleteNews and purgeExpiredArticles mutations are implemented in the frontend hooks and Admin page",
-      "reason": "These features were not requested in REQ-1 or anywhere in the build request. They go beyond fixing the submission bug.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/AdminPage.tsx"
-      ]
-    },
-    {
-      "description": "AdminReviewsPage route and admin reviews functionality including useGetAllReviews and useDeleteReview hooks",
-      "reason": "The build request explicitly states changes to the review or user profile features are non-goals, yet a new /admin/reviews route and review-related hooks were added.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Full UI redesign of multiple pages including HomePage, PoliticalNewsPage, MovieNewsPage, ArticleDetailPage, Header, Footer, and new components such as BreakingNewsTicker, ArticleListItem, TopStoriesSidebar, and ArticleCard variants",
-      "reason": "The build request explicitly lists UI redesign of the Admin page beyond what is needed to fix submission as a non-goal, and these changes affect pages entirely unrelated to the article submission fix.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "hallucinated_features": [],
+  "confidence": 0.93,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/ActorLoadingGuard.tsx",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/AdminPage.tsx",
     "project_state.json"
   ]
 }

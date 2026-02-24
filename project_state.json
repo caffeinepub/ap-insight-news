@@ -1,32 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App with article management features, including article expiration (7 days) and article submission functionality.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Article submission is broken — users cannot add articles"
+    "User encountering 'Backend connection not ready. Please wait and try again.' error"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-investigate-and-fix-the-article-submission-flow-so-that-admins-can-successfully-add-new-articles-the-form-on-the-admin-page-must-submit-article-data-title-content-category-image-author-etc-to-the-backend-without-errors-and-the-newly-created-article-must-appear-in-the-article-list-after-submission",
-      "title": "Investigate and fix the article submission flow so that admins can successfully add new articles. The form on the Admin page must submit article data (title, content, category, image, author, etc.) to the backend without errors, and the newly created article must appear in the article list after submission.",
+      "id": "feature-resolve-the-backend-connection-not-ready-please-wait-and-try-again-error-by-ensuring-the-backend-actor-is-fully-initialized-before-any-queries-or-mutations-are-attempted-add-a-loading-retry-state-in-the-useactor-hook-or-at-the-app-level-so-that-dependent-components-wait-for-a-valid-actor-before-executing-backend-calls",
+      "title": "Resolve the 'Backend connection not ready. Please wait and try again.' error by ensuring the backend actor is fully initialized before any queries or mutations are attempted. Add a loading/retry state in the useActor hook or at the app level so that dependent components wait for a valid actor before executing backend calls.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    }
-  ],
-  "new_feature_requests": [
+    },
     {
-      "id": "AR-1",
-      "summary": "Fix article submission (unable to add article)",
-      "reqIds": [],
-      "status": "pending"
+      "id": "feature-ensure-the-usequeries-hooks-in-frontend-src-hooks-usequeries-ts-guard-against-undefined-or-null-actor-instances-before-firing-backend-calls-returning-a-stable-loading-or-disabled-state-when-the-actor-is-not-yet-available",
+      "title": "Ensure the useQueries hooks in frontend/src/hooks/useQueries.ts guard against undefined or null actor instances before firing backend calls, returning a stable loading or disabled state when the actor is not yet available.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Fix article submission on Admin page",
+  "new_feature_requests": [],
+  "projectName": "Fix backend connection initialization error",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

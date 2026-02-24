@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the article submission flow on the Admin page so admins can successfully create and publish new articles.
+**Goal:** Fix the "Backend connection not ready. Please wait and try again." error by ensuring the backend actor is fully initialized before any queries or mutations are attempted.
 
 **Planned changes:**
-- Investigate and fix the article submission form on the Admin page so it correctly sends all article data (title, content, category, image, author, etc.) to the backend
-- Fix the backend `addArticle` function (or equivalent) to properly accept and store submitted article data
-- Ensure the newly created article appears in the article list after successful submission
-- Surface any form validation errors clearly to the user
-- Eliminate any console errors or unhandled promise rejections during submission
+- Add a loading/retry state at the app level or via a wrapper so dependent components wait for a valid actor before executing backend calls.
+- Update `useQueries.ts` hooks to guard against undefined or null actor instances, returning a stable loading or idle state when the actor is not yet available.
+- Show a loading indicator in components that depend on the backend actor while it is initializing.
+- Show a user-friendly error state with a retry option if actor initialization genuinely fails.
 
-**User-visible outcome:** Admins can fill out and submit the article form on the Admin page without errors, and the new article immediately appears in the article list.
+**User-visible outcome:** The app no longer shows the backend connection error on page load; components display a loading state while connecting, and queries execute automatically once the actor is ready without requiring a manual page refresh.

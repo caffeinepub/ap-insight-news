@@ -3,47 +3,62 @@ import { useActor } from './useActor';
 import { NewsCategory } from '../backend';
 
 export function useGetAllNews() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['news', 'all'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllNews();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
 }
 
 export function useGetNewsByCategory(category: NewsCategory) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['news', 'category', category],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getNewsByCategory(category);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
 }
 
 export function useGetNewsById(id: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['news', 'id', id],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not initialized');
       return actor.getNewsById(id);
     },
-    enabled: !!actor && !isFetching && !!id,
+    enabled: !!actor && !actorFetching && !!id,
     retry: false,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
 }
 
 export function useAddNews() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -57,7 +72,9 @@ export function useAddNews() {
       publicationDate: string;
       imageUrl: string | null;
     }) => {
-      if (!actor) throw new Error('Actor not initialized. Please make sure you are logged in.');
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
       await actor.addNews(
         params.id,
         params.title,
@@ -76,12 +93,14 @@ export function useAddNews() {
 }
 
 export function useDeleteNews() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
       await actor.deleteNews(id);
     },
     onSuccess: () => {
@@ -91,12 +110,14 @@ export function useDeleteNews() {
 }
 
 export function usePurgeExpiredArticles() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
       await actor.purgeExpiredArticles();
     },
     onSuccess: () => {
@@ -106,33 +127,43 @@ export function usePurgeExpiredArticles() {
 }
 
 export function useGetReviewsByArticleId(articleId: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['reviews', 'article', articleId],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getReviewsByArticleId(articleId);
     },
-    enabled: !!actor && !isFetching && !!articleId,
+    enabled: !!actor && !actorFetching && !!articleId,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
 }
 
 export function useGetAllReviews() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['reviews', 'all'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllReviews();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
 }
 
 export function useAddReview() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -142,7 +173,9 @@ export function useAddReview() {
       rating: bigint;
       reviewText: string;
     }) => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
       return actor.addReview(
         params.articleId,
         params.reviewerName,
@@ -157,16 +190,110 @@ export function useAddReview() {
 }
 
 export function useDeleteReview() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not initialized');
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
       await actor.deleteReview(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
+    },
+  });
+}
+
+export function useGetCallerUserProfile() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery({
+    queryKey: ['currentUserProfile'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCallerUserProfile();
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+    isFetched: !!actor && query.isFetched,
+  };
+}
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery({
+    queryKey: ['isCallerAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
+}
+
+export function useGetCallerUserRole() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery({
+    queryKey: ['callerUserRole'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCallerUserRole();
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
+}
+
+export function useSaveCallerUserProfile() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: { name: string }) => {
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
+      await actor.saveCallerUserProfile(profile);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
+  });
+}
+
+export function useAssignCallerUserRole() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: { user: import('@dfinity/principal').Principal; role: import('../backend').UserRole }) => {
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
+      await actor.assignCallerUserRole(params.user, params.role);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['callerUserRole'] });
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
     },
   });
 }

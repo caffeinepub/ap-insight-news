@@ -13,14 +13,17 @@ import MovieNewsPage from './pages/MovieNewsPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import AdminPage from './pages/AdminPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
+import ActorLoadingGuard from './components/ActorLoadingGuard';
 
-// Root layout with Header and Footer
+// Root layout with Header and Footer, wrapped in actor loading guard
 function RootLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <div className="flex-1">
-        <Outlet />
+        <ActorLoadingGuard>
+          <Outlet />
+        </ActorLoadingGuard>
       </div>
       <Footer />
     </div>

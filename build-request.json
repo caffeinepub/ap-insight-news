@@ -1,39 +1,54 @@
 {
   "kind": "build_request",
-  "title": "Fix article submission on Admin page",
+  "title": "Fix backend connection initialization error",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Investigate and fix the article submission flow so that admins can successfully add new articles. The form on the Admin page must submit article data (title, content, category, image, author, etc.) to the backend without errors, and the newly created article must appear in the article list after submission.",
-      "target": "both",
+      "text": "Resolve the 'Backend connection not ready. Please wait and try again.' error by ensuring the backend actor is fully initialized before any queries or mutations are attempted. Add a loading/retry state in the useActor hook or at the app level so that dependent components wait for a valid actor before executing backend calls.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-recent"
         ],
         "quotes": [
-          "I am unable to add article",
-          "yes please"
+          "Backend connection not ready. Please wait and try again."
         ]
       },
       "acceptanceCriteria": [
-        "Admin can fill out the article submission form and click submit without encountering an error.",
-        "On successful submission, the new article appears in the article list on the Admin page.",
-        "Backend addArticle (or equivalent) function accepts the submitted data and stores it correctly.",
-        "Any validation errors in the form are surfaced clearly to the user.",
-        "No console errors or unhandled promise rejections occur during article submission."
+        "The error message 'Backend connection not ready. Please wait and try again.' no longer appears on page load under normal conditions.",
+        "Components that depend on the backend actor show a loading indicator while the actor is being initialized.",
+        "Once the actor is ready, queries and mutations execute successfully without requiring a manual page refresh.",
+        "If actor initialization genuinely fails, a clear, user-friendly error state is shown with a retry option."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Ensure the useQueries hooks in frontend/src/hooks/useQueries.ts guard against undefined or null actor instances before firing backend calls, returning a stable loading or disabled state when the actor is not yet available.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Backend connection not ready. Please wait and try again."
+        ]
+      },
+      "acceptanceCriteria": [
+        "React Query hooks do not throw or display errors when the actor is still initializing.",
+        "Queries remain in a 'loading' or 'idle' state until the actor is confirmed ready.",
+        "No console errors related to calling methods on an undefined actor."
       ]
     }
   ],
   "constraints": [
-    "Do not change the overall article data schema unless strictly required to fix the submission bug.",
-    "Preserve the 7-day article expiry logic already in place."
+    "Do not modify frontend/src/hooks/useActor.ts or frontend/src/hooks/useInternetIdentity.ts directly — propose safe alternatives or wrapper logic outside those files if needed.",
+    "Do not change the backend Motoko actor interface or data models."
   ],
   "nonGoals": [
-    "Adding new article fields not already part of the schema.",
-    "Changes to the review or user profile features.",
-    "UI redesign of the Admin page beyond what is needed to fix submission."
+    "Adding new backend features or data models.",
+    "Changing authentication flow beyond fixing the connection readiness check.",
+    "Modifying AdSense or ad placement logic."
   ],
   "imageRequirements": {
     "required": [],
