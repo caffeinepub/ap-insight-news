@@ -1,0 +1,40 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Deploy AP Insight News to Internet Computer Mainnet",
+  "requirements": [
+    {
+      "id": "REQ-16",
+      "summary": "Deploy the AP Insight News application (backend Motoko canister and frontend React app) to the Internet Computer mainnet so it is publicly accessible via a live URL",
+      "acceptanceCriteria": [
+        "The backend canister is deployed and running on the Internet Computer network.",
+        "The frontend is built and uploaded as an asset canister on the Internet Computer network.",
+        "The application is accessible via a public ICP URL (e.g., https://<canister-id>.icp0.io).",
+        "All existing features (homepage, political news, movie news, article detail, admin page, authentication) work correctly on the deployed version.",
+        "Internet Identity authentication functions correctly on the live deployment."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Update the backend canister ID references to use the production mainnet canister ID after deployment. Ensure the actor creation logic correctly resolves the mainnet backend canister when running in production mode."
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Verify that the Internet Identity authentication configuration uses the correct production Internet Identity canister URL (https://identity.ic0.app) and that the AuthClient is configured for mainnet operation. Update any local-only identity provider URLs to production endpoints."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Ensure the application entry point is configured for production deployment, with no hardcoded localhost references. Verify that environment detection works correctly to differentiate between local development and mainnet deployment."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Update the HTML entry point to reference production asset paths and ensure all script/style tags resolve correctly when served from the Internet Computer asset canister. Verify the page title and meta tags are production-ready."
+        }
+      ]
+    }
+  ]
+}

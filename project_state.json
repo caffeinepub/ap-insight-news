@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 11,
+  "summary": "A news website called 'AP Insight News' featuring day-to-day political news and movie news, styled to closely resemble the layout and design of GreatAndhra.com.",
+  "architectural_notes": [
+    "News website with two main categories: Political News and Movie News",
+    "Target design reference: GreatAndhra.com — multi-column grid, breaking news ticker, category tab navigation, dense article listing"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-build-a-homepage-that-displays-the-latest-news-from-both-political-and-movie-categories-the-homepage-must-show-a-hero-featured-article-section-a-latest-political-news-section-with-the-3-most-recent-political-articles-as-cards-and-a-latest-movie-news-section-with-the-3-most-recent-movie-articles-as-cards-each-card-shows-the-article-image-or-a-placeholder-category-badge-title-summary-snippet-author-and-date",
+      "title": "Build a Homepage that displays the latest news from both Political and Movie categories. The homepage must show a hero/featured article section, a 'Latest Political News' section with the 3 most recent political articles as cards, and a 'Latest Movie News' section with the 3 most recent movie articles as cards. Each card shows the article image (or a placeholder), category badge, title, summary snippet, author, and date.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-political-news-listing-page-at-route-political-that-fetches-and-displays-all-political-news-articles-in-a-responsive-grid-include-a-page-title-article-count-and-support-pagination-or-load-more-if-there-are-more-than-9-articles",
+      "title": "Create a Political News listing page at route /political that fetches and displays all political news articles in a responsive grid. Include a page title, article count, and support pagination or 'load more' if there are more than 9 articles.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-movie-news-listing-page-at-route-movies-that-fetches-and-displays-all-movie-news-articles-in-a-responsive-grid-include-a-page-title-article-count-and-support-pagination-or-load-more-if-there-are-more-than-9-articles",
+      "title": "Create a Movie News listing page at route /movies that fetches and displays all movie news articles in a responsive grid. Include a page title, article count, and support pagination or 'load more' if there are more than 9 articles.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-article-detail-page-at-route-article-id-that-displays-the-full-content-of-a-single-news-article-including-title-category-badge-author-date-full-content-body-and-the-article-image-if-available-include-a-back-button-to-return-to-the-relevant-category-page",
+      "title": "Create an Article Detail page at route /article/:id that displays the full content of a single news article including: title, category badge, author, date, full content body, and the article image if available. Include a back button to return to the relevant category page.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-site-wide-navigation-header-with-the-ap-insight-news-logo-brand-name-navigation-links-to-home-political-news-and-movie-news-and-a-responsive-hamburger-menu-for-mobile-screens",
+      "title": "Build a site-wide navigation header with the AP Insight News logo/brand name, navigation links to Home, Political News, and Movie News, and a responsive hamburger menu for mobile screens.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-bold-newspaper-inspired-visual-theme-across-the-entire-website-use-a-deep-red-and-dark-charcoal-color-palette-with-clean-serif-sans-serif-typography-the-layout-should-feel-authoritative-and-journalistic-with-clear-typographic-hierarchy-section-dividers-and-a-footer-with-the-site-name-and-category-links-enforce-this-design-consistently-on-all-pages",
+      "title": "Apply a bold, newspaper-inspired visual theme across the entire website. Use a deep red and dark charcoal color palette with clean serif/sans-serif typography. The layout should feel authoritative and journalistic — with clear typographic hierarchy, section dividers, and a footer with the site name and category links. Enforce this design consistently on all pages.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-overall-site-layout-to-closely-match-greatandhra-com-s-dense-multi-column-newspaper-style-grid-the-homepage-should-use-a-top-featured-story-row-followed-by-a-multi-column-grid-3-4-columns-on-desktop-2-on-tablet-1-on-mobile-with-compact-article-cards-showing-thumbnail-image-category-label-headline-and-a-short-snippet-prioritize-dense-information-layout-typical-of-regional-news-portals",
+      "title": "Redesign the overall site layout to closely match GreatAndhra.com's dense, multi-column newspaper-style grid. The homepage should use a top featured story row, followed by a multi-column grid (3–4 columns on desktop, 2 on tablet, 1 on mobile) with compact article cards showing thumbnail image, category label, headline, and a short snippet. Prioritize dense information layout typical of regional news portals.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-breaking-news-ticker-bar-at-the-top-of-every-page-above-the-main-navigation-header-that-horizontally-scrolls-through-the-latest-headlines-the-ticker-should-display-a-breaking-news-label-badge-on-the-left-and-auto-scroll-article-titles-linking-to-their-respective-article-detail-pages",
+      "title": "Add a breaking news ticker bar at the top of every page (above the main navigation header) that horizontally scrolls through the latest headlines. The ticker should display a 'Breaking News' label badge on the left and auto-scroll article titles linking to their respective article detail pages.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-top-navigation-header-to-include-a-category-tab-bar-below-the-logo-brand-row-similar-to-greatandhra-com-the-tab-bar-should-have-tabs-for-home-political-news-and-movie-news-the-active-tab-should-be-visually-highlighted-the-header-should-also-include-a-site-logo-brand-name-on-the-left-and-a-date-display-on-the-right",
+      "title": "Redesign the top navigation header to include a category tab bar below the logo/brand row, similar to GreatAndhra.com. The tab bar should have tabs for 'Home', 'Political News', and 'Movie News'. The active tab should be visually highlighted. The header should also include a site logo/brand name on the left and a date display on the right.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-political-news-and-movie-news-listing-pages-to-use-a-dense-article-listing-style-matching-greatandhra-com-use-a-primary-wide-column-for-the-main-article-list-and-a-sidebar-column-on-desktop-for-additional-article-previews-or-a-top-stories-section-article-rows-in-the-list-should-show-a-small-thumbnail-on-the-left-and-headline-snippet-on-the-right",
+      "title": "Redesign the Political News and Movie News listing pages to use a dense article listing style matching GreatAndhra.com. Use a primary wide column for the main article list and a sidebar column (on desktop) for additional article previews or a 'Top Stories' section. Article rows in the list should show a small thumbnail on the left and headline + snippet on the right.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-overall-color-scheme-and-typography-to-match-greatandhra-com-s-style-use-a-white-light-grey-background-with-red-accent-colors-for-category-labels-and-section-headers-dark-text-for-body-copy-and-a-clean-sans-serif-font-for-headlines-and-body-remove-or-reduce-the-current-dark-charcoal-background-approach-in-favor-of-a-lighter-more-traditional-news-portal-look",
+      "title": "Update the overall color scheme and typography to match GreatAndhra.com's style: use a white/light-grey background with red accent colors for category labels and section headers, dark text for body copy, and a clean sans-serif font for headlines and body. Remove or reduce the current dark/charcoal background approach in favor of a lighter, more traditional news portal look.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-admin-content-management-page-at-route-admin-that-provides-an-interface-to-add-new-news-articles-the-form-must-include-fields-for-title-summary-full-content-body-category-political-or-movie-author-name-publication-date-and-an-optional-image-url-include-an-upload-image-button-that-allows-the-user-to-upload-an-image-file-from-their-device-stored-as-a-data-url-or-object-url-for-preview-include-an-upload-content-button-or-textarea-to-paste-upload-article-content-from-a-text-file-on-submission-the-new-article-is-saved-via-the-existing-addnews-backend-function",
+      "title": "Create an admin/content management page at route /admin that provides an interface to add new news articles. The form must include fields for: title, summary, full content body, category (political or movie), author name, publication date, and an optional image URL. Include an 'Upload Image' button that allows the user to upload an image file from their device (stored as a data URL or object URL for preview). Include an 'Upload Content' button or textarea to paste/upload article content from a text file. On submission, the new article is saved via the existing addNews backend function.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-link-to-the-admin-page-admin-in-the-site-header-or-footer-so-editors-can-easily-access-the-content-management-interface",
+      "title": "Add a navigation link to the admin page (/admin) in the site header or footer so editors can easily access the content management interface.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-protect-the-article-detail-page-article-id-so-that-it-is-only-accessible-to-authenticated-users-logged-in-via-internet-identity-unauthenticated-visitors-who-navigate-to-an-article-detail-url-should-be-shown-a-login-prompt-or-redirected-and-the-full-article-content-must-not-be-rendered-until-the-user-is-logged-in",
+      "title": "Protect the Article Detail page (/article/:id) so that it is only accessible to authenticated users (logged in via Internet Identity). Unauthenticated visitors who navigate to an article detail URL should be shown a login prompt or redirected, and the full article content must not be rendered until the user is logged in.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Display day-to-day political news articles",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Display day-to-day movie news articles",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Homepage with latest news from both political and movie categories",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Create a backend data model and actor to store, manage, and retrieve news articles. Each article must have: id, title, summary, full content, category (either 'political' or 'movie'), author, publication date, and an optional image URL. Expose public query functions to list all articles, list by category, and get a single article by id. Expose update functions to add new articles.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Redesign the website layout and style to closely match GreatAndhra.com, including its multi-column news grid layout, breaking news ticker, top navigation with category tabs, and dense article listing style.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add an admin/content management interface with options to add new articles, upload images, and upload/edit article content",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add authentication/authorization to the admin page so that only the authorized owner/editor can view and use the article management interface",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Deploy the AP Insight News application (backend Motoko canister and frontend React app) to the Internet Computer mainnet so it is publicly accessible via a live URL.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "AP Insight News",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

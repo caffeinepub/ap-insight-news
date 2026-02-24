@@ -1,0 +1,41 @@
+{
+  "kind": "build_request",
+  "title": "Deploy application to the Internet Computer",
+  "projectName": "AP Insight News",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-16",
+      "text": "Deploy the AP Insight News application (backend Motoko canister and frontend React app) to the Internet Computer mainnet so it is publicly accessible via a live URL.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Deploy to internet"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The backend canister is deployed and running on the Internet Computer network.",
+        "The frontend is built and uploaded as an asset canister on the Internet Computer network.",
+        "The application is accessible via a public ICP URL (e.g., https://<canister-id>.icp0.io).",
+        "All existing features (homepage, political news, movie news, article detail, admin page, authentication) work correctly on the deployed version.",
+        "Internet Identity authentication functions correctly on the live deployment."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any existing application logic, UI, or backend data model during deployment.",
+    "Preserve all existing frontend immutable paths as defined in the system context."
+  ],
+  "nonGoals": [
+    "Adding new features or UI changes as part of this deployment.",
+    "Deploying to any cloud provider other than the Internet Computer (no AWS, GCP, Azure, Vercel, etc.).",
+    "Changing authentication mechanisms or backend schema."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
