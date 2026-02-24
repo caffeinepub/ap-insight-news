@@ -12,6 +12,7 @@ import PoliticalNewsPage from './pages/PoliticalNewsPage';
 import MovieNewsPage from './pages/MovieNewsPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import AdminPage from './pages/AdminPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
 
 // Root layout with Header and Footer
 function RootLayout() {
@@ -61,12 +62,19 @@ const adminRoute = createRoute({
   component: AdminPage,
 });
 
+const adminReviewsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/reviews',
+  component: AdminReviewsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   politicalRoute,
   moviesRoute,
   articleDetailRoute,
   adminRoute,
+  adminReviewsRoute,
 ]);
 
 const router = createRouter({ routeTree });

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Menu, X, PenSquare } from 'lucide-react';
+import { Menu, X, PenSquare, MessageSquare } from 'lucide-react';
 import BreakingNewsTicker from './BreakingNewsTicker';
 
 const navLinks = [
@@ -70,19 +70,32 @@ export default function Header() {
             </div>
           </Link>
 
-          {/* Date + Admin link + Mobile toggle */}
-          <div className="flex items-center gap-3">
+          {/* Date + Admin links + Mobile toggle */}
+          <div className="flex items-center gap-2">
             <span className="hidden sm:block text-xs font-sans" style={{ color: 'oklch(0.5 0.02 260)' }}>
               {formatDate()}
             </span>
-            {/* Admin link — desktop */}
+            {/* Admin Reviews link — desktop (shown first) */}
+            <Link
+              to="/admin/reviews"
+              className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
+              style={{
+                color: isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
+                borderColor: 'oklch(0.45 0.22 25)',
+                backgroundColor: isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
+              }}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              Movie Reviews
+            </Link>
+            {/* Admin Add Article link — desktop */}
             <Link
               to="/admin"
               className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
               style={{
-                color: isActive('/admin') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
+                color: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
                 borderColor: 'oklch(0.45 0.22 25)',
-                backgroundColor: isActive('/admin') ? 'oklch(0.45 0.22 25)' : 'transparent',
+                backgroundColor: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
               }}
             >
               <PenSquare className="w-3.5 h-3.5" />
@@ -129,11 +142,20 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              {/* Admin link — mobile */}
+              {/* Admin Reviews link — mobile (shown first) */}
+              <Link
+                to="/admin/reviews"
+                onClick={() => setMobileOpen(false)}
+                className={`nav-tab flex items-center gap-1.5 ${isActive('/admin/reviews') ? 'nav-tab-active' : ''}`}
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Movie Reviews
+              </Link>
+              {/* Admin Add Article link — mobile */}
               <Link
                 to="/admin"
                 onClick={() => setMobileOpen(false)}
-                className={`nav-tab flex items-center gap-1.5 ${isActive('/admin') ? 'nav-tab-active' : ''}`}
+                className={`nav-tab flex items-center gap-1.5 ${isActive('/admin') && !isActive('/admin/reviews') ? 'nav-tab-active' : ''}`}
               >
                 <PenSquare className="w-3.5 h-3.5" />
                 Add Article

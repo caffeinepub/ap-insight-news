@@ -13,6 +13,7 @@ import type { Principal } from '@icp-sdk/core/principal';
 export interface News {
   'id' : string,
   'title' : string,
+  'expiresAt' : Time,
   'fullContent' : string,
   'author' : string,
   'summary' : string,
@@ -22,7 +23,21 @@ export interface News {
 }
 export type NewsCategory = { 'movie' : null } |
   { 'political' : null };
+export interface Review {
+  'id' : bigint,
+  'createdAt' : Time,
+  'reviewText' : string,
+  'reviewerName' : string,
+  'articleId' : string,
+  'rating' : bigint,
+}
+export type Time = bigint;
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addNews' : ActorMethod<
     [
       string,
@@ -36,9 +51,21 @@ export interface _SERVICE {
     ],
     undefined
   >,
+  'addReview' : ActorMethod<[string, string, bigint, string], bigint>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteNews' : ActorMethod<[string], undefined>,
+  'deleteReview' : ActorMethod<[bigint], undefined>,
   'getAllNews' : ActorMethod<[], Array<News>>,
+  'getAllReviews' : ActorMethod<[], Array<Review>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getNewsByCategory' : ActorMethod<[NewsCategory], Array<News>>,
   'getNewsById' : ActorMethod<[string], News>,
+  'getReviewsByArticleId' : ActorMethod<[string], Array<Review>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'purgeExpiredArticles' : ActorMethod<[], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

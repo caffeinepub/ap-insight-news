@@ -1,34 +1,35 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T21:46:56.007Z",
+  "generatedAt": "2026-02-24T22:45:12.075Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 1,
-    "implemented": 0,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-16",
-        "summary": "Deploy the AP Insight News application (backend Motoko canister and frontend React app) to the Internet Computer mainnet so it is publicly accessible via a live URL.",
-        "status": "missing",
+        "id": "REQ-1",
+        "summary": "Rename the navigation option currently labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all places it appears in the frontend (Header navigation, Footer navigation links, and any other UI references).",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/hooks/useInternetIdentity.ts",
-          "frontend/src/main.tsx",
-          "frontend/index.html"
+          "frontend/src/components/Header.tsx",
+          "frontend/src/components/Footer.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/Header.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
+    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/components/Header.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

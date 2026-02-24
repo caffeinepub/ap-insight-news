@@ -1,4 +1,24 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-rename-the-navigation-option-currently-labeled-manage-reviews-to-movie-reviews-in-all-places-it-appears-in-the-frontend-header-navigation-footer-navigation-links-and-any-other-ui-references",
+      "featureTitle": "Rename the navigation option currently labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all places it appears in the frontend (Header navigation, Footer navigation links, and any other UI references).",
+      "files": [
+        "frontend/src/components/Header.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

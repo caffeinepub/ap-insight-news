@@ -1,11 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Deploy the AP Insight News application (Motoko backend canister and React frontend asset canister) to the Internet Computer mainnet so it is publicly accessible.
+**Goal:** Rename the navigation label "MANAGE REVIEWS" to "Movie Reviews" throughout the frontend UI.
 
 **Planned changes:**
-- Deploy the backend Motoko canister to the Internet Computer mainnet network.
-- Build and deploy the frontend React app as an asset canister to the Internet Computer mainnet network.
-- Configure dfx.json and deployment settings as needed for mainnet deployment.
+- Update the navigation item label from "MANAGE REVIEWS" to "Movie Reviews" in the Header component (desktop and mobile)
+- Update the label from "MANAGE REVIEWS" to "Movie Reviews" in the Footer component if present
 
-**User-visible outcome:** The AP Insight News application is live and accessible via a public ICP URL (e.g., `https://<canister-id>.icp0.io`), with all existing features including homepage, political news, movie news, article detail, admin page, and Internet Identity authentication working correctly.
+**User-visible outcome:** The navigation option previously labeled "MANAGE REVIEWS" now displays as "Movie Reviews" everywhere it appears, while still linking to the same page.

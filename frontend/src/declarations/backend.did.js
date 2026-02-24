@@ -12,9 +12,16 @@ export const NewsCategory = IDL.Variant({
   'movie' : IDL.Null,
   'political' : IDL.Null,
 });
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const Time = IDL.Int;
 export const News = IDL.Record({
   'id' : IDL.Text,
   'title' : IDL.Text,
+  'expiresAt' : Time,
   'fullContent' : IDL.Text,
   'author' : IDL.Text,
   'summary' : IDL.Text,
@@ -22,8 +29,18 @@ export const News = IDL.Record({
   'publicationDate' : IDL.Text,
   'category' : NewsCategory,
 });
+export const Review = IDL.Record({
+  'id' : IDL.Nat,
+  'createdAt' : Time,
+  'reviewText' : IDL.Text,
+  'reviewerName' : IDL.Text,
+  'articleId' : IDL.Text,
+  'rating' : IDL.Nat,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addNews' : IDL.Func(
       [
         IDL.Text,
@@ -38,9 +55,29 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'addReview' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Nat, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteNews' : IDL.Func([IDL.Text], [], []),
+  'deleteReview' : IDL.Func([IDL.Nat], [], []),
   'getAllNews' : IDL.Func([], [IDL.Vec(News)], ['query']),
+  'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
   'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
+  'getReviewsByArticleId' : IDL.Func([IDL.Text], [IDL.Vec(Review)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'purgeExpiredArticles' : IDL.Func([], [], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
 });
 
 export const idlInitArgs = [];
@@ -50,9 +87,16 @@ export const idlFactory = ({ IDL }) => {
     'movie' : IDL.Null,
     'political' : IDL.Null,
   });
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const Time = IDL.Int;
   const News = IDL.Record({
     'id' : IDL.Text,
     'title' : IDL.Text,
+    'expiresAt' : Time,
     'fullContent' : IDL.Text,
     'author' : IDL.Text,
     'summary' : IDL.Text,
@@ -60,8 +104,18 @@ export const idlFactory = ({ IDL }) => {
     'publicationDate' : IDL.Text,
     'category' : NewsCategory,
   });
+  const Review = IDL.Record({
+    'id' : IDL.Nat,
+    'createdAt' : Time,
+    'reviewText' : IDL.Text,
+    'reviewerName' : IDL.Text,
+    'articleId' : IDL.Text,
+    'rating' : IDL.Nat,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addNews' : IDL.Func(
         [
           IDL.Text,
@@ -76,9 +130,33 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'addReview' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Nat, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteNews' : IDL.Func([IDL.Text], [], []),
+    'deleteReview' : IDL.Func([IDL.Nat], [], []),
     'getAllNews' : IDL.Func([], [IDL.Vec(News)], ['query']),
+    'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
     'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
+    'getReviewsByArticleId' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(Review)],
+        ['query'],
+      ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'purgeExpiredArticles' : IDL.Func([], [], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   });
 };
 

@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { useAddNews } from '../hooks/useQueries';
+import { useState, useRef, useEffect } from 'react';
+import { useAddNews, useGetAllNews, useDeleteNews, usePurgeExpiredArticles } from '../hooks/useQueries';
 import { NewsCategory } from '../backend';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,34 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ImagePlus, FileText, Upload, CheckCircle2, AlertCircle, Loader2, X } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import {
+  ImagePlus,
+  FileText,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  X,
+  Trash2,
+  Newspaper,
+  Clock,
+  Flame,
+} from 'lucide-react';
+import type { News } from '../backend';
+import { useActor } from '../hooks/useActor';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 
 interface FormState {
   title: string;
@@ -34,18 +61,200 @@ const initialForm: FormState = {
   publicationDate: new Date().toISOString().split('T')[0],
 };
 
+/** Convert nanosecond bigint timestamp to JS Date */
+function nsToDate(ns: bigint): Date {
+  return new Date(Number(ns / BigInt(1_000_000)));
+}
+
+/** Format expiry timestamp for display */
+function formatExpiry(expiresAt: bigint): string {
+  try {
+    return nsToDate(expiresAt).toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '';
+  }
+}
+
+/** Returns true if the article is expired (expiresAt is in the past) */
+function isExpired(expiresAt: bigint): boolean {
+  return nsToDate(expiresAt) < new Date();
+}
+
+function ArticleDeleteRow({ article }: { article: News }) {
+  const deleteNewsMutation = useDeleteNews();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    setDeleteError(null);
+    try {
+      await deleteNewsMutation.mutateAsync(article.id);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to delete article.';
+      setDeleteError(message);
+    }
+  };
+
+  const categoryLabel = article.category === NewsCategory.political ? 'Political' : 'Movie';
+  const categoryClass =
+    article.category === NewsCategory.political
+      ? 'bg-blue-100 text-blue-700'
+      : 'bg-purple-100 text-purple-700';
+
+  const expired = isExpired(article.expiresAt);
+  const expiryText = formatExpiry(article.expiresAt);
+
+  return (
+    <div
+      className={`flex items-start gap-3 py-3 border-b border-border last:border-b-0 ${
+        expired ? 'opacity-60' : ''
+      }`}
+    >
+      {/* Thumbnail */}
+      <div className="w-16 h-12 shrink-0 bg-secondary border border-border overflow-hidden rounded-sm">
+        {article.imageUrl ? (
+          <img
+            src={article.imageUrl}
+            alt=""
+            className={`w-full h-full object-cover ${expired ? 'grayscale' : ''}`}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Newspaper className="w-5 h-5 text-muted-foreground/40" />
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <p
+            className={`text-sm font-semibold font-sans leading-snug line-clamp-1 ${
+              expired ? 'line-through text-muted-foreground' : 'text-foreground'
+            }`}
+          >
+            {article.title}
+          </p>
+          {expired && (
+            <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 border-amber-200 shrink-0">
+              Expired
+            </Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${categoryClass}`}>
+            {categoryLabel}
+          </span>
+          <span className="text-xs text-muted-foreground font-sans">{article.author}</span>
+          <span className="text-xs text-muted-foreground font-sans">{article.publicationDate}</span>
+        </div>
+        {/* Expiry timestamp */}
+        <div className="flex items-center gap-1 mt-1">
+          <Clock className={`w-3 h-3 ${expired ? 'text-amber-500' : 'text-muted-foreground/60'}`} />
+          <span
+            className={`text-xs font-sans ${
+              expired ? 'text-amber-600 font-medium' : 'text-muted-foreground/70'
+            }`}
+          >
+            {expired ? `Expired: ${expiryText}` : `Expires: ${expiryText}`}
+          </span>
+        </div>
+        {deleteError && (
+          <p className="text-xs text-destructive mt-1">{deleteError}</p>
+        )}
+      </div>
+
+      {/* Delete button */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            disabled={deleteNewsMutation.isPending}
+            aria-label="Delete article"
+          >
+            {deleteNewsMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Article?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>"{article.title}"</strong>? This action cannot
+              be undone and will permanently remove the article.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              Delete Article
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Partial<Record<keyof FormState, string>>
+  >({});
+  const [purgeError, setPurgeError] = useState<string | null>(null);
+  const [purgeSuccess, setPurgeSuccess] = useState(false);
 
   const imageInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
 
   const addNewsMutation = useAddNews();
+  const { data: allArticles, isLoading: articlesLoading } = useGetAllNews();
+  const purgeExpiredMutation = usePurgeExpiredArticles();
+
+  const { actor } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (actor && isAuthenticated) {
+      actor.isCallerAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+    } else {
+      setIsAdmin(false);
+    }
+  }, [actor, isAuthenticated]);
+
+  const expiredCount = allArticles?.filter((a) => isExpired(a.expiresAt)).length ?? 0;
+
+  const handlePurge = async () => {
+    setPurgeError(null);
+    setPurgeSuccess(false);
+    try {
+      await purgeExpiredMutation.mutateAsync();
+      setPurgeSuccess(true);
+      setTimeout(() => setPurgeSuccess(false), 4000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to purge expired articles.';
+      setPurgeError(message);
+    }
+  };
 
   const handleFieldChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -125,7 +334,8 @@ export default function AdminPage() {
       if (imageInputRef.current) imageInputRef.current.value = '';
       if (contentFileInputRef.current) contentFileInputRef.current.value = '';
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to publish article. Please try again.';
+      const message =
+        err instanceof Error ? err.message : 'Failed to publish article. Please try again.';
       setErrorMsg(message);
     }
   };
@@ -136,13 +346,117 @@ export default function AdminPage() {
         {/* Page Header */}
         <div className="mb-6">
           <h1 className="font-condensed text-3xl font-bold text-foreground uppercase tracking-wide">
-            Admin — Add Article
+            Admin — Content Management
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Fill in the details below to publish a new article to the site.
+            Manage articles: add new content, delete or purge expired articles.
           </p>
         </div>
 
+        {/* ── Manage Articles Section ── */}
+        <Card className="shadow-news border border-border mb-8">
+          <CardHeader className="border-b border-border pb-4">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <CardTitle className="font-condensed text-xl uppercase tracking-wide text-foreground flex items-center gap-2">
+                  <Newspaper className="w-5 h-5 text-primary" />
+                  Manage Articles
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground mt-1">
+                  {allArticles
+                    ? `${allArticles.length} article${allArticles.length !== 1 ? 's' : ''} published${expiredCount > 0 ? ` · ${expiredCount} expired` : ''}`
+                    : 'Loading articles…'}
+                </CardDescription>
+              </div>
+
+              {/* Purge Expired button — admin only */}
+              {isAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={purgeExpiredMutation.isPending || expiredCount === 0}
+                      className="flex items-center gap-1.5 border-amber-400 text-amber-700 hover:bg-amber-50 hover:text-amber-800 hover:border-amber-500 disabled:opacity-50 transition-colors"
+                    >
+                      {purgeExpiredMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Purging…
+                        </>
+                      ) : (
+                        <>
+                          <Flame className="w-3.5 h-3.5" />
+                          Purge Expired
+                          {expiredCount > 0 && (
+                            <span className="ml-1 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
+                              {expiredCount}
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Purge Expired Articles?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete all <strong>{expiredCount}</strong> expired
+                        article{expiredCount !== 1 ? 's' : ''} from the system. This action cannot
+                        be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handlePurge}
+                        className="bg-amber-600 text-white hover:bg-amber-700"
+                      >
+                        Purge Expired
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+
+            {/* Purge feedback */}
+            {purgeSuccess && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-800 text-xs px-3 py-2 mt-3 rounded">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                <span>Expired articles purged successfully.</span>
+              </div>
+            )}
+            {purgeError && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 text-xs px-3 py-2 mt-3 rounded">
+                <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>{purgeError}</span>
+              </div>
+            )}
+          </CardHeader>
+
+          <CardContent className="pt-4">
+            {articlesLoading ? (
+              <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-sm font-sans">Loading articles…</span>
+              </div>
+            ) : allArticles && allArticles.length > 0 ? (
+              <div>
+                {allArticles.map((article) => (
+                  <ArticleDeleteRow key={article.id} article={article} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <Newspaper className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground font-sans">No articles published yet.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Add Article Section ── */}
         {/* Success / Error Alerts */}
         {successMsg && (
           <Alert className="mb-5 border-green-500 bg-green-50 text-green-800">
@@ -163,10 +477,10 @@ export default function AdminPage() {
           <Card className="shadow-news border border-border">
             <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-condensed text-xl uppercase tracking-wide text-foreground">
-                Article Details
+                Add New Article
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground">
-                All fields marked with * are required.
+                All fields marked with * are required. Articles expire automatically after 24 hours.
               </CardDescription>
             </CardHeader>
 
@@ -310,77 +624,61 @@ export default function AdminPage() {
                   Article Image <span className="text-muted-foreground font-normal">(optional)</span>
                 </Label>
 
-                {/* Upload trigger */}
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => imageInputRef.current?.click()}
-                    className="flex items-center gap-2 border-primary/40 text-primary hover:bg-primary/5 hover:text-primary"
-                  >
-                    <ImagePlus className="w-4 h-4" />
-                    Upload Image
-                  </Button>
-                  {imagePreview && (
-                    <button
-                      type="button"
-                      onClick={clearImage}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      Remove
-                    </button>
-                  )}
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                </div>
-
-                {/* Image Preview */}
                 {imagePreview ? (
-                  <div className="relative mt-2 rounded overflow-hidden border border-border w-full max-w-sm">
+                  <div className="relative w-full max-w-sm">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-full h-48 object-cover"
+                      className="w-full h-40 object-cover border border-border rounded-sm"
                     />
-                    <div className="absolute top-2 right-2">
-                      <button
-                        type="button"
-                        onClick={clearImage}
-                        className="bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
-                        aria-label="Remove image"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                      aria-label="Remove image"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ) : (
-                  <div
-                    className="mt-2 flex flex-col items-center justify-center w-full max-w-sm h-36 border-2 border-dashed border-border rounded cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                  <button
+                    type="button"
                     onClick={() => imageInputRef.current?.click()}
+                    className="flex flex-col items-center justify-center w-full max-w-sm h-32 border-2 border-dashed border-border hover:border-primary/50 rounded-sm bg-secondary hover:bg-primary/5 transition-colors cursor-pointer"
                   >
-                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                    <p className="text-xs text-muted-foreground">Click to upload an image</p>
-                    <p className="text-xs text-muted-foreground/60 mt-0.5">PNG, JPG, GIF, WebP</p>
-                  </div>
+                    <ImagePlus className="w-8 h-8 text-muted-foreground/40 mb-2" />
+                    <span className="text-xs text-muted-foreground font-sans">
+                      Click to upload image
+                    </span>
+                    <span className="text-xs text-muted-foreground/60 font-sans mt-0.5">
+                      JPG, PNG, GIF, WebP
+                    </span>
+                  </button>
                 )}
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </div>
+
+              {/* Expiry notice */}
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                <p className="text-xs text-amber-700 font-sans">
+                  This article will automatically expire <strong>24 hours</strong> after publication
+                  and will no longer be visible to readers.
+                </p>
               </div>
 
               {/* Submit */}
-              <div className="pt-2 border-t border-border flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
-                  Article will be published immediately upon submission.
-                </p>
+              <div className="flex justify-end pt-2">
                 <Button
                   type="submit"
                   disabled={addNewsMutation.isPending}
-                  className="bg-primary hover:bg-primary/90 text-white font-semibold px-6"
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold font-condensed uppercase tracking-wide px-8"
                 >
                   {addNewsMutation.isPending ? (
                     <>

@@ -92,6 +92,7 @@ export class ExternalBlob {
 export interface News {
     id: string;
     title: string;
+    expiresAt: Time;
     fullContent: string;
     author: string;
     summary: string;
@@ -99,19 +100,63 @@ export interface News {
     publicationDate: string;
     category: NewsCategory;
 }
+export type Time = bigint;
+export interface UserProfile {
+    name: string;
+}
+export interface Review {
+    id: bigint;
+    createdAt: Time;
+    reviewText: string;
+    reviewerName: string;
+    articleId: string;
+    rating: bigint;
+}
 export enum NewsCategory {
     movie = "movie",
     political = "political"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageUrl: string | null): Promise<void>;
+    addReview(articleId: string, reviewerName: string, rating: bigint, reviewText: string): Promise<bigint>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteNews(id: string): Promise<void>;
+    deleteReview(id: bigint): Promise<void>;
     getAllNews(): Promise<Array<News>>;
+    getAllReviews(): Promise<Array<Review>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getNewsByCategory(category: NewsCategory): Promise<Array<News>>;
     getNewsById(id: string): Promise<News>;
+    getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    purgeExpiredArticles(): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
 }
-import type { News as _News, NewsCategory as _NewsCategory } from "./declarations/backend.did.d.ts";
+import type { News as _News, NewsCategory as _NewsCategory, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._initializeAccessControlWithSecret(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._initializeAccessControlWithSecret(arg0);
+            return result;
+        }
+    }
     async addNews(arg0: string, arg1: string, arg2: string, arg3: string, arg4: NewsCategory, arg5: string, arg6: string, arg7: string | null): Promise<void> {
         if (this.processError) {
             try {
@@ -126,61 +171,236 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addReview(arg0: string, arg1: string, arg2: bigint, arg3: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addReview(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addReview(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n4(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n4(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async deleteNews(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteNews(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteNews(arg0);
+            return result;
+        }
+    }
+    async deleteReview(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteReview(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteReview(arg0);
+            return result;
+        }
+    }
     async getAllNews(): Promise<Array<News>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getAllNews();
-                return from_candid_vec_n4(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllNews();
-            return from_candid_vec_n4(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllReviews(): Promise<Array<Review>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllReviews();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllReviews();
+            return result;
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n13(this._uploadFile, this._downloadFile, result);
         }
     }
     async getNewsByCategory(arg0: NewsCategory): Promise<Array<News>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getNewsByCategory(to_candid_NewsCategory_n1(this._uploadFile, this._downloadFile, arg0));
-                return from_candid_vec_n4(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getNewsByCategory(to_candid_NewsCategory_n1(this._uploadFile, this._downloadFile, arg0));
-            return from_candid_vec_n4(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
         }
     }
     async getNewsById(arg0: string): Promise<News> {
         if (this.processError) {
             try {
                 const result = await this.actor.getNewsById(arg0);
-                return from_candid_News_n5(this._uploadFile, this._downloadFile, result);
+                return from_candid_News_n7(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getNewsById(arg0);
-            return from_candid_News_n5(this._uploadFile, this._downloadFile, result);
+            return from_candid_News_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getReviewsByArticleId(arg0: string): Promise<Array<Review>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getReviewsByArticleId(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getReviewsByArticleId(arg0);
+            return result;
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async purgeExpiredArticles(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.purgeExpiredArticles();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.purgeExpiredArticles();
+            return result;
+        }
+    }
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveCallerUserProfile(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
         }
     }
 }
-function from_candid_NewsCategory_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _NewsCategory): NewsCategory {
-    return from_candid_variant_n9(_uploadFile, _downloadFile, value);
+function from_candid_NewsCategory_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _NewsCategory): NewsCategory {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
 }
-function from_candid_News_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _News): News {
-    return from_candid_record_n6(_uploadFile, _downloadFile, value);
+function from_candid_News_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _News): News {
+    return from_candid_record_n8(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+function from_candid_UserRole_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n14(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: string;
     title: string;
+    expiresAt: _Time;
     fullContent: string;
     author: string;
     summary: string;
@@ -190,6 +410,7 @@ function from_candid_record_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint
 }): {
     id: string;
     title: string;
+    expiresAt: Time;
     fullContent: string;
     author: string;
     summary: string;
@@ -200,26 +421,39 @@ function from_candid_record_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint
     return {
         id: value.id,
         title: value.title,
+        expiresAt: value.expiresAt,
         fullContent: value.fullContent,
         author: value.author,
         summary: value.summary,
-        imageUrl: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.imageUrl)),
+        imageUrl: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.imageUrl)),
         publicationDate: value.publicationDate,
-        category: from_candid_NewsCategory_n8(_uploadFile, _downloadFile, value.category)
+        category: from_candid_NewsCategory_n10(_uploadFile, _downloadFile, value.category)
     };
 }
-function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     movie: null;
 } | {
     political: null;
 }): NewsCategory {
     return "movie" in value ? NewsCategory.movie : "political" in value ? NewsCategory.political : value;
 }
-function from_candid_vec_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_News>): Array<News> {
-    return value.map((x)=>from_candid_News_n5(_uploadFile, _downloadFile, x));
+function from_candid_variant_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_vec_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_News>): Array<News> {
+    return value.map((x)=>from_candid_News_n7(_uploadFile, _downloadFile, x));
 }
 function to_candid_NewsCategory_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: NewsCategory): _NewsCategory {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n5(_uploadFile, _downloadFile, value);
 }
 function to_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
     return value === null ? candid_none() : candid_some(value);
@@ -233,6 +467,21 @@ function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8
         movie: null
     } : value == NewsCategory.political ? {
         political: null
+    } : value;
+}
+function to_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
     } : value;
 }
 export interface CreateActorOptions {
