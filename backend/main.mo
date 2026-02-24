@@ -10,18 +10,13 @@ import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
-
-
 actor {
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
-
-  type NewsCategory = {
+  public type NewsCategory = {
     #political;
     #movie;
   };
 
-  type News = {
+  public type News = {
     id : Text;
     title : Text;
     summary : Text;
@@ -33,7 +28,7 @@ actor {
     expiresAt : Time.Time;
   };
 
-  type Review = {
+  public type Review = {
     id : Nat;
     articleId : Text;
     reviewerName : Text;
@@ -42,9 +37,12 @@ actor {
     createdAt : Time.Time;
   };
 
-  type UserProfile = {
+  public type UserProfile = {
     name : Text;
   };
+
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
 
   let news = Map.empty<Text, News>();
   let reviews = Map.empty<Nat, Review>();
@@ -77,8 +75,6 @@ actor {
       Runtime.trap("Unauthorized: Only admins can add news articles");
     };
 
-    if (news.containsKey(id)) { Runtime.trap("Article with this ID already exists.") };
-
     let article : News = {
       id;
       title;
@@ -88,7 +84,7 @@ actor {
       author;
       publicationDate;
       imageUrl;
-      expiresAt = Time.now() + (24 * 60 * 60 * 1000000000); // 24 hours in nanoseconds
+      expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000); // 7 days in nanoseconds
     };
 
     news.add(id, article);
@@ -198,6 +194,7 @@ actor {
       };
     };
   };
+
   public shared ({ caller }) func purgeExpiredArticles() : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can purge expired articles");

@@ -1,18 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { type News, type Review, NewsCategory } from '../backend';
+import { NewsCategory } from '../backend';
 
 export function useGetAllNews() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<News[]>({
+  return useQuery({
     queryKey: ['news', 'all'],
     queryFn: async () => {
       if (!actor) return [];
-      const articles = await actor.getAllNews();
-      return [...articles].sort(
-        (a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime()
-      );
+      return actor.getAllNews();
     },
     enabled: !!actor && !isFetching,
   });
@@ -21,14 +18,11 @@ export function useGetAllNews() {
 export function useGetNewsByCategory(category: NewsCategory) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<News[]>({
+  return useQuery({
     queryKey: ['news', 'category', category],
     queryFn: async () => {
       if (!actor) return [];
-      const articles = await actor.getNewsByCategory(category);
-      return [...articles].sort(
-        (a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime()
-      );
+      return actor.getNewsByCategory(category);
     },
     enabled: !!actor && !isFetching,
   });
@@ -37,17 +31,14 @@ export function useGetNewsByCategory(category: NewsCategory) {
 export function useGetNewsById(id: string) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<News | null>({
+  return useQuery({
     queryKey: ['news', 'id', id],
     queryFn: async () => {
-      if (!actor) return null;
-      try {
-        return await actor.getNewsById(id);
-      } catch {
-        return null;
-      }
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.getNewsById(id);
     },
     enabled: !!actor && !isFetching && !!id,
+    retry: false,
   });
 }
 
@@ -66,8 +57,8 @@ export function useAddNews() {
       publicationDate: string;
       imageUrl: string | null;
     }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      return actor.addNews(
+      if (!actor) throw new Error('Actor not initialized. Please make sure you are logged in.');
+      await actor.addNews(
         params.id,
         params.title,
         params.summary,
@@ -91,7 +82,7 @@ export function useDeleteNews() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteNews(id);
+      await actor.deleteNews(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
@@ -106,7 +97,7 @@ export function usePurgeExpiredArticles() {
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.purgeExpiredArticles();
+      await actor.purgeExpiredArticles();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
@@ -117,12 +108,11 @@ export function usePurgeExpiredArticles() {
 export function useGetReviewsByArticleId(articleId: string) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Review[]>({
+  return useQuery({
     queryKey: ['reviews', 'article', articleId],
     queryFn: async () => {
       if (!actor) return [];
-      const reviews = await actor.getReviewsByArticleId(articleId);
-      return [...reviews].sort((a, b) => Number(b.createdAt - a.createdAt));
+      return actor.getReviewsByArticleId(articleId);
     },
     enabled: !!actor && !isFetching && !!articleId,
   });
@@ -131,12 +121,11 @@ export function useGetReviewsByArticleId(articleId: string) {
 export function useGetAllReviews() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Review[]>({
+  return useQuery({
     queryKey: ['reviews', 'all'],
     queryFn: async () => {
       if (!actor) return [];
-      const reviews = await actor.getAllReviews();
-      return [...reviews].sort((a, b) => Number(b.createdAt - a.createdAt));
+      return actor.getAllReviews();
     },
     enabled: !!actor && !isFetching,
   });
@@ -163,7 +152,6 @@ export function useAddReview() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['reviews', 'article', variables.articleId] });
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'all'] });
     },
   });
 }
@@ -175,7 +163,7 @@ export function useDeleteReview() {
   return useMutation({
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.deleteReview(id);
+      await actor.deleteReview(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] });

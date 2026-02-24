@@ -1,28 +1,28 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Rename 'MANAGE REVIEWS' navigation option to 'Movie Reviews'",
+  "title": "Fix article submission on Admin page",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Rename the navigation option labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all frontend navigation components",
+      "summary": "Fix the article submission flow so admins can successfully add new articles through the Admin page form",
       "acceptanceCriteria": [
-        "The navigation item previously labeled 'MANAGE REVIEWS' now displays as 'Movie Reviews'",
-        "The label change is reflected in both desktop and mobile navigation in the Header component",
-        "The label change is reflected in the Footer component if it appears there",
-        "Clicking the renamed 'Movie Reviews' link still navigates to the same admin reviews page",
-        "No other navigation labels are changed"
+        "Admin can fill out the article submission form and click submit without encountering an error.",
+        "On successful submission, the new article appears in the article list on the Admin page.",
+        "Backend addArticle (or equivalent) function accepts the submitted data and stores it correctly.",
+        "Any validation errors in the form are surfaced clearly to the user.",
+        "No console errors or unhandled promise rejections occur during article submission."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/pages/AdminPage.tsx",
           "operation": "modify",
-          "description": "Update the navigation link text from 'MANAGE REVIEWS' to 'Movie Reviews' in both desktop and mobile navigation sections. Ensure the route path to the admin reviews page remains unchanged (/admin/reviews)."
+          "description": "Fix the article submission form to correctly call the backend addNews function. Ensure all required parameters (id, title, summary, fullContent, category, author, publicationDate, imageUrl) match the backend interface signature. Add proper error handling for submission failures with clear user feedback. Verify form validation catches missing or invalid fields before submission. Ensure successful submission refreshes the article list and clears the form. Check that image upload handling correctly converts files to URLs or handles null values as expected by addNews."
         },
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the footer navigation link text from 'MANAGE REVIEWS' to 'Movie Reviews' if it appears in the quick links or category links section. Ensure the route path remains unchanged."
+          "description": "Review and fix the addNews mutation hook to ensure it correctly invokes actor.addNews with all parameters in the right order and type. Verify the mutation invalidates the 'allNews' query key on success to trigger a refetch of the article list. Add proper error propagation so the AdminPage can display submission errors to the user. Ensure the mutation handles imageUrl as string | null to match the backend interface."
         }
       ]
     }

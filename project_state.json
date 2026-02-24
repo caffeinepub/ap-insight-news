@@ -1,14 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App with movie articles/reviews management. Features time-limited articles (disappear after 24 hours) and a navigation option renamed from 'MANAGE REVIEWS' to 'Movie Reviews'.",
+  "summary": "App with article management features, including article expiration (7 days) and article submission functionality.",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Article submission is broken — users cannot add articles"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-rename-the-navigation-option-currently-labeled-manage-reviews-to-movie-reviews-in-all-places-it-appears-in-the-frontend-header-navigation-footer-navigation-links-and-any-other-ui-references",
-      "title": "Rename the navigation option currently labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all places it appears in the frontend (Header navigation, Footer navigation links, and any other UI references).",
+      "id": "feature-investigate-and-fix-the-article-submission-flow-so-that-admins-can-successfully-add-new-articles-the-form-on-the-admin-page-must-submit-article-data-title-content-category-image-author-etc-to-the-backend-without-errors-and-the-newly-created-article-must-appear-in-the-article-list-after-submission",
+      "title": "Investigate and fix the article submission flow so that admins can successfully add new articles. The form on the Admin page must submit article data (title, content, category, image, author, etc.) to the backend without errors, and the newly created article must appear in the article list after submission.",
       "reqIds": [
         "REQ-1"
       ],
@@ -18,13 +20,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Rename navigation option 'MANAGE REVIEWS' to 'Movie Reviews'",
+      "summary": "Fix article submission (unable to add article)",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Rename 'MANAGE REVIEWS' navigation option to 'Movie Reviews'",
+  "projectName": "Fix article submission on Admin page",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

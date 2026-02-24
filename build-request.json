@@ -1,34 +1,39 @@
 {
   "kind": "build_request",
-  "title": "Rename 'MANAGE REVIEWS' navigation option to 'Movie Reviews'",
-  "priority": "normal",
+  "title": "Fix article submission on Admin page",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Rename the navigation option currently labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all places it appears in the frontend (Header navigation, Footer navigation links, and any other UI references).",
-      "target": "frontend",
+      "text": "Investigate and fix the article submission flow so that admins can successfully add new articles. The form on the Admin page must submit article data (title, content, category, image, author, etc.) to the backend without errors, and the newly created article must appear in the article list after submission.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "Change the option name MANAGE REVIEWS to Movie Reviews"
+          "I am unable to add article",
+          "yes please"
         ]
       },
       "acceptanceCriteria": [
-        "The navigation item previously labeled 'MANAGE REVIEWS' now displays as 'Movie Reviews'",
-        "The label change is reflected in both desktop and mobile navigation in the Header component",
-        "The label change is reflected in the Footer component if it appears there",
-        "Clicking the renamed 'Movie Reviews' link still navigates to the same admin reviews page",
-        "No other navigation labels are changed"
+        "Admin can fill out the article submission form and click submit without encountering an error.",
+        "On successful submission, the new article appears in the article list on the Admin page.",
+        "Backend addArticle (or equivalent) function accepts the submitted data and stores it correctly.",
+        "Any validation errors in the form are surfaced clearly to the user.",
+        "No console errors or unhandled promise rejections occur during article submission."
       ]
     }
   ],
-  "constraints": [],
+  "constraints": [
+    "Do not change the overall article data schema unless strictly required to fix the submission bug.",
+    "Preserve the 7-day article expiry logic already in place."
+  ],
   "nonGoals": [
-    "Changing the route path or URL for the admin reviews page",
-    "Modifying any backend logic or data models",
-    "Renaming any other navigation items"
+    "Adding new article fields not already part of the schema.",
+    "Changes to the review or user profile features.",
+    "UI redesign of the Admin page beyond what is needed to fix submission."
   ],
   "imageRequirements": {
     "required": [],

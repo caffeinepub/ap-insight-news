@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-rename-the-navigation-option-currently-labeled-manage-reviews-to-movie-reviews-in-all-places-it-appears-in-the-frontend-header-navigation-footer-navigation-links-and-any-other-ui-references",
-      "featureTitle": "Rename the navigation option currently labeled 'MANAGE REVIEWS' to 'Movie Reviews' in all places it appears in the frontend (Header navigation, Footer navigation links, and any other UI references).",
+      "featureId": "feature-investigate-and-fix-the-article-submission-flow-so-that-admins-can-successfully-add-new-articles-the-form-on-the-admin-page-must-submit-article-data-title-content-category-image-author-etc-to-the-backend-without-errors-and-the-newly-created-article-must-appear-in-the-article-list-after-submission",
+      "featureTitle": "Investigate and fix the article submission flow so that admins can successfully add new articles. The form on the Admin page must submit article data (title, content, category, image, author, etc.) to the backend without errors, and the newly created article must appear in the article list after submission.",
       "files": [
-        "frontend/src/components/Header.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/AdminPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
