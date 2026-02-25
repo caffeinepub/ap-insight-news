@@ -63,6 +63,10 @@ actor {
     userProfiles.get(user);
   };
 
+  public query ({ caller }) func isConnected() : async Bool {
+    true;
+  };
+
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");

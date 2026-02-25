@@ -137,6 +137,7 @@ export interface backendInterface {
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    isConnected(): Promise<boolean>;
     purgeExpiredArticles(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
 }
@@ -350,6 +351,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async isConnected(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isConnected();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isConnected();
             return result;
         }
     }

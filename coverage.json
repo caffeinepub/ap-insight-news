@@ -1,49 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T23:38:49.884Z",
+  "generatedAt": "2026-02-25T20:41:36.433Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Resolve the 'Backend connection not ready. Please wait and try again.' error by ensuring the backend actor is fully initialized before any queries or mutations are attempted. Add a loading/retry state in the useActor hook or at the app level so that dependent components wait for a valid actor before executing backend calls.",
+        "summary": "Diagnose and fix the 'Unable to connect to backend' error that users are experiencing in production. Ensure the backend actor is correctly initialized and that the canister ID environment variables are properly wired so the frontend can establish a connection to the Motoko backend on page load.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/ActorLoadingGuard.tsx"
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/components/ActorLoadingGuard.tsx",
+          "frontend/.env.development",
+          "frontend/.env.production",
+          "frontend/vite.config.ts"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
           "frontend/src/components/ActorLoadingGuard.tsx"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Ensure the useQueries hooks in frontend/src/hooks/useQueries.ts guard against undefined or null actor instances before firing backend calls, returning a stable loading or disabled state when the actor is not yet available.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/ActorLoadingGuard.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

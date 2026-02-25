@@ -64,6 +64,7 @@ export interface _SERVICE {
   'getReviewsByArticleId' : ActorMethod<[string], Array<Review>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isConnected' : ActorMethod<[], boolean>,
   'purgeExpiredArticles' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }

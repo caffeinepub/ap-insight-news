@@ -54,6 +54,7 @@ export interface backendInterface {
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    isConnected(): Promise<boolean>;
     purgeExpiredArticles(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
 }

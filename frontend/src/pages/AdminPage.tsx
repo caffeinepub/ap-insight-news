@@ -310,7 +310,7 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="imageUrl">Image URL <span className="text-muted-foreground text-xs">(optional)</span></Label>
+            <Label htmlFor="imageUrl">Upload Image <span className="text-muted-foreground text-xs">(optional)</span></Label>
             <Input
               id="imageUrl"
               name="imageUrl"

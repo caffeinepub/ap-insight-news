@@ -1,43 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix backend connection initialization error",
+  "title": "Fix backend connection failure ('Unable to connect to backend')",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Resolve 'Backend connection not ready' error by ensuring the backend actor is fully initialized before any queries or mutations are attempted, with proper loading/retry states",
+      "summary": "Diagnose and fix the 'Unable to connect to backend' error by ensuring the backend actor is correctly initialized with proper canister ID environment variables",
       "acceptanceCriteria": [
-        "The error message 'Backend connection not ready. Please wait and try again.' no longer appears on page load under normal conditions.",
-        "Components that depend on the backend actor show a loading indicator while the actor is being initialized.",
-        "Once the actor is ready, queries and mutations execute successfully without requiring a manual page refresh.",
-        "If actor initialization genuinely fails, a clear, user-friendly error state is shown with a retry option."
+        "The app loads without displaying the 'Unable to connect to backend' error message",
+        "The ActorLoadingGuard component transitions from loading state to ready state successfully",
+        "Backend queries (e.g., fetching news articles on the home page) complete without connection errors",
+        "The retry button in the ActorLoadingGuard is not needed under normal conditions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Add an actor initialization guard wrapper around the router outlet. When the actor is loading (useActor returns isFetching: true), display a centered loading spinner or skeleton state. If actor initialization fails, show a user-friendly error message with a retry button that triggers a page reload or re-initialization. This ensures no routes render until the actor is ready, preventing premature backend calls."
+          "description": "Review and fix the actor initialization logic to ensure canister ID environment variables (VITE_CANISTER_ID_BACKEND or CANISTER_ID_BACKEND) are correctly accessed and passed to the HttpAgent. Verify the agent configuration includes proper host URL and identity handling. Ensure error handling properly captures and reports connection failures. Use the core-infrastructure component's backend connection configuration to support proper canister ID resolution."
         },
         {
           "path": "frontend/src/components/ActorLoadingGuard.tsx",
-          "operation": "create",
-          "description": "Create a new component that wraps children and displays a loading state while the actor is initializing. Use useActor hook to check isFetching state. If isFetching is true, render a full-page loading spinner with message 'Connecting to backend...'. If actor initialization fails (actor is null after isFetching becomes false), show an error card with message 'Unable to connect to backend' and a retry button. Only render children when actor is available and isFetching is false. This component will be used in App.tsx to guard the entire application."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Ensure useQueries hooks guard against undefined or null actor instances, returning stable loading or disabled states when the actor is not yet available",
-      "acceptanceCriteria": [
-        "React Query hooks do not throw or display errors when the actor is still initializing.",
-        "Queries remain in a 'loading' or 'idle' state until the actor is confirmed ready.",
-        "No console errors related to calling methods on an undefined actor."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update all query hooks (useGetAllNews, useGetNewsByCategory, useGetNewsById, useGetAllReviews, useGetReviewsByArticleId, useGetCallerUserProfile, useIsCallerAdmin, useGetCallerUserRole) to include actor readiness checks. For each query, add 'enabled: !!actor && !isFetching' to the query options to prevent execution when actor is not ready. Update the return value to merge actorFetching into isLoading so components see a unified loading state: return { ...query, isLoading: actorFetching || query.isLoading }. For mutation hooks (useAddNews, useDeleteNews, useAddReview, useDeleteReview, usePurgeExpiredArticles, useSaveCallerUserProfile, useAssignCallerUserRole), add early guards that check if (!actor) before attempting mutations and throw a descriptive error. Ensure all hooks destructure both actor and isFetching from useActor()."
+          "description": "Enhance error diagnostics in the ActorLoadingGuard component to display more specific error messages when backend connection fails, including canister ID availability and network connectivity information. Ensure the component properly reflects the actor loading states from useActor hook."
+        },
+        {
+          "path": "frontend/.env.development",
+          "operation": "create",
+          "description": "Create environment configuration file to define VITE_CANISTER_ID_BACKEND and VITE_DFX_NETWORK variables for local development, ensuring proper canister ID resolution during development mode."
+        },
+        {
+          "path": "frontend/.env.production",
+          "operation": "create",
+          "description": "Create production environment configuration file to define VITE_CANISTER_ID_BACKEND for production deployment, ensuring the frontend can resolve the backend canister ID when deployed to mainnet or production networks."
+        },
+        {
+          "path": "frontend/vite.config.ts",
+          "operation": "modify",
+          "description": "Review and update Vite configuration to ensure environment variables are properly loaded and exposed to the application. Verify that canister ID environment variables are correctly passed through the build process using define or envPrefix configuration."
         }
       ]
     }

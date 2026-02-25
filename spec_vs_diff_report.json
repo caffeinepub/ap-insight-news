@@ -1,16 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T23:38:49.881Z",
-  "summary": "The diff implements both REQ-1 and REQ-2 effectively. A new ActorLoadingGuard component wraps the app's Outlet, showing a loading spinner during actor initialization and a user-friendly error state with a retry button when the actor fails to initialize. The useQueries hooks are updated to guard against undefined/null actor and merge actorFetching into isLoading. All acceptance criteria appear to be met.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-25T20:41:36.431Z",
+  "summary": "The diff modifies 4 files: backend/main.mo, frontend/src/components/ActorLoadingGuard.tsx, frontend-file-summaries.txt, and project_state.json. The core REQ-1 requirement is to fix the 'Unable to connect to backend' error by ensuring the backend actor is correctly initialized and canister ID environment variables are properly wired. The diff does not show any changes to the actor initialization logic, canister ID wiring, environment variable configuration, or the useActor hook that would actually fix the connection. The ActorLoadingGuard component appears unchanged in terms of logic. No changes to environment variable files, vite.config, dfx.json, or the useActor hook are visible.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Ensure the backend actor is correctly initialized and that the canister ID environment variables are properly wired so the frontend can establish a connection to the Motoko backend on page load.",
+      "reason": "The diff does not show any changes to the actor initialization code (e.g., useActor hook, createActor factory, canister ID environment variable wiring in vite.config.js, dfx.json, or .env files). The ActorLoadingGuard component and the file-summaries reference useActor but no fix to the actual connection/initialization path is visible in the diff. Without changes to how the canister ID is resolved and the actor is created, the root cause of the connection failure is not addressed.",
+      "evidence": [
+        "frontend/src/components/ActorLoadingGuard.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.93,
+  "confidence": 0.55,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
     "frontend/src/components/ActorLoadingGuard.tsx",
-    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

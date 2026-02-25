@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the "Backend connection not ready. Please wait and try again." error by ensuring the backend actor is fully initialized before any queries or mutations are attempted.
+**Goal:** Fix the "Unable to connect to backend" error so the frontend can successfully connect to the Motoko backend on page load.
 
 **Planned changes:**
-- Add a loading/retry state at the app level or via a wrapper so dependent components wait for a valid actor before executing backend calls.
-- Update `useQueries.ts` hooks to guard against undefined or null actor instances, returning a stable loading or idle state when the actor is not yet available.
-- Show a loading indicator in components that depend on the backend actor while it is initializing.
-- Show a user-friendly error state with a retry option if actor initialization genuinely fails.
+- Diagnose and fix the backend actor initialization so it connects correctly on page load
+- Ensure canister ID environment variables are properly wired for the frontend to reach the backend
+- Verify the `ActorLoadingGuard` component transitions from loading to ready state without errors
 
-**User-visible outcome:** The app no longer shows the backend connection error on page load; components display a loading state while connecting, and queries execute automatically once the actor is ready without requiring a manual page refresh.
+**User-visible outcome:** The app loads without displaying the "Unable to connect to backend" error, and backend data (e.g., news articles) loads successfully on the home page.
