@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { NewsCategory } from '../backend';
+import { NewsCategory, type News } from '../backend';
+
+/** Sort articles newest-first by createdAt (bigint nanoseconds). */
+function sortNewestFirst(articles: News[]): News[] {
+  return [...articles].sort((a, b) => {
+    if (b.createdAt > a.createdAt) return 1;
+    if (b.createdAt < a.createdAt) return -1;
+    return 0;
+  });
+}
 
 export function useGetAllNews() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -9,7 +18,8 @@ export function useGetAllNews() {
     queryKey: ['news', 'all'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllNews();
+      const result = await actor.getAllNews();
+      return sortNewestFirst(result);
     },
     enabled: !!actor && !actorFetching,
   });
@@ -27,7 +37,8 @@ export function useGetNewsByCategory(category: NewsCategory) {
     queryKey: ['news', 'category', category],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getNewsByCategory(category);
+      const result = await actor.getNewsByCategory(category);
+      return sortNewestFirst(result);
     },
     enabled: !!actor && !actorFetching,
   });

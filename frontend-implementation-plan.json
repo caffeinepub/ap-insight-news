@@ -1,22 +1,43 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Google AdSense script tag to HTML head",
+  "title": "Fix article sorting — latest first",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add the Google AdSense script tag inside the <head> element of frontend/index.html to enable AdSense across all pages of the React SPA",
+      "id": "REQ-2",
+      "summary": "Ensure all frontend pages display articles in the exact order returned by the backend (newest first) without client-side re-sorting or reversal",
       "acceptanceCriteria": [
-        "The AdSense <script> tag with client=ca-pub-2965680356233756 is present inside <head> in frontend/index.html.",
-        "The script tag includes both the async attribute and crossorigin=\"anonymous\" attribute.",
-        "No existing head content (meta tags, title, other scripts) is removed or altered.",
-        "The app still loads and renders correctly after the change."
+        "HomePage hero and section lists show the most recently created article first.",
+        "PoliticalNewsPage and MovieNewsPage lists show newest articles at the top.",
+        "TopStoriesSidebar shows the 5 most recent articles in descending date order.",
+        "BreakingNewsTicker ticker shows the latest 10 articles newest first.",
+        "No client-side sort or reverse is applied that contradicts backend order."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Insert the Google AdSense script tag <script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script> inside the <head> element. Place it after any existing meta tags and before the closing </head> tag. Ensure the async and crossorigin attributes are included exactly as specified. Do not modify or remove any existing head content."
+          "description": "Review and remove any client-side sorting or reversal logic that may be applied to article arrays. Ensure that articles are rendered in the exact order returned from getAllNews() and getNewsByCategory() backend queries. Verify that the hero article selection (first article) and secondary stories (subsequent articles) respect the backend sort order without modification."
+        },
+        {
+          "path": "frontend/src/pages/PoliticalNewsPage.tsx",
+          "operation": "modify",
+          "description": "Audit the component to ensure articles from getNewsByCategory(NewsCategory.political) are displayed in the exact order received from the backend. Remove any .sort(), .reverse(), or array manipulation that reorders articles. Ensure pagination logic preserves the original backend order when slicing arrays for display."
+        },
+        {
+          "path": "frontend/src/pages/MovieNewsPage.tsx",
+          "operation": "modify",
+          "description": "Audit the component to ensure articles from getNewsByCategory(NewsCategory.movie) are displayed in the exact order received from the backend. Remove any .sort(), .reverse(), or array manipulation that reorders articles. Ensure pagination logic preserves the original backend order when slicing arrays for display."
+        },
+        {
+          "path": "frontend/src/components/TopStoriesSidebar.tsx",
+          "operation": "modify",
+          "description": "Review the component to ensure the top 5 articles are taken from the beginning of the getAllNews() array without applying additional sort or reverse operations. Use .slice(0, 5) to take the first 5 articles as-is from the backend response, ensuring they appear in descending createdAt order (newest first)."
+        },
+        {
+          "path": "frontend/src/components/BreakingNewsTicker.tsx",
+          "operation": "modify",
+          "description": "Review the ticker component to ensure the latest 10 articles are taken from the beginning of the getAllNews() array without additional sorting or reversal. Use .slice(0, 10) to take the first 10 articles directly from the backend response, preserving the newest-first order for display in the scrolling ticker."
         }
       ]
     }

@@ -4,8 +4,10 @@ import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
+import Int "mo:core/Int";
 import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
+import Order "mo:core/Order";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
@@ -27,6 +29,7 @@ actor {
     publicationDate : Text;
     imageData : ?Text; // Could be URL or base64
     expiresAt : Time.Time;
+    createdAt : Time.Time;
   };
 
   public type Review = {
@@ -90,6 +93,7 @@ actor {
       publicationDate;
       imageData;
       expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000);
+      createdAt = Time.now();
     };
 
     news.add(id, article);
@@ -107,20 +111,28 @@ actor {
     };
   };
 
+  func compareNewsByCreatedAtDescending(a : News, b : News) : Order.Order {
+    Int.compare(b.createdAt, a.createdAt);
+  };
+
   public query func getAllNews() : async [News] {
-    news.values().toArray().filter(
+    let filteredNews = news.values().toArray().filter(
       func(article) {
         Time.now() <= article.expiresAt;
       }
     );
+
+    filteredNews.sort(compareNewsByCreatedAtDescending);
   };
 
   public query func getNewsByCategory(category : NewsCategory) : async [News] {
-    news.values().toArray().filter(
+    let filteredNews = news.values().toArray().filter(
       func(article) {
         article.category == category and Time.now() <= article.expiresAt
       }
     );
+
+    filteredNews.sort(compareNewsByCreatedAtDescending);
   };
 
   public shared ({ caller }) func addReview(articleId : Text, reviewerName : Text, rating : Nat, reviewText : Text) : async Nat {
@@ -218,3 +230,5 @@ actor {
     };
   };
 };
+
+

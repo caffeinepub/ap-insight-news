@@ -1,32 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Web project with Google AdSense integration and file upload functionality.",
-  "architectural_notes": [
-    "Google AdSense script (client ca-pub-2965680356233756) must be included in <head> on every page"
+  "summary": "Website project where articles should be sorted by latest first, but the sorting is not working as expected.",
+  "architectural_notes": [],
+  "known_issues": [
+    "Articles are not being sorted by latest first as expected"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-add-the-google-adsense-script-tag-script-async-src-https-pagead2-googlesyndication-com-pagead-js-adsbygoogle-js-client-ca-pub-2965680356233756-crossorigin-anonymous-script-inside-the-head-element-of-frontend-index-html-this-is-the-single-html-entry-point-for-the-react-spa-so-adding-it-there-covers-all-pages",
-      "title": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    }
-  ],
+  "isFixRequest": true,
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add Google AdSense script tag to <head> on all pages for ad display",
-      "reqIds": [],
+      "summary": "Ensure the backend returns all news articles sorted in descending order by `createdAt` (newest first). Audit the query/filter function in `backend/main.mo` that returns article lists and confirm the sort is applied correctly before returning results.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure that all frontend pages that display article lists (HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, BreakingNewsTicker) render articles in the exact order returned by the backend without any client-side re-sorting or reversal that could override the newest-first order.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "AP Insight News",
+  "projectName": "Fix article sorting — latest first",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

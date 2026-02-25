@@ -1,36 +1,44 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T22:15:17.976Z",
+  "generatedAt": "2026-02-25T22:52:54.534Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
-        "status": "implemented",
+        "summary": "Ensure the backend returns all news articles sorted in descending order by `createdAt` (newest first). Audit the query/filter function in `backend/main.mo` that returns article lists and confirm the sort is applied correctly before returning results.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Ensure that all frontend pages that display article lists (HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, BreakingNewsTicker) render articles in the exact order returned by the backend without any client-side re-sorting or reversal that could override the newest-first order.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/index.html"
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/PoliticalNewsPage.tsx",
+          "frontend/src/pages/MovieNewsPage.tsx",
+          "frontend/src/components/TopStoriesSidebar.tsx",
+          "frontend/src/components/BreakingNewsTicker.tsx"
         ],
-        "matchedFiles": [
-          "frontend/index.html"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
-    "build-template/README.md",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

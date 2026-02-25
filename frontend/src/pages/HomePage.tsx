@@ -43,10 +43,10 @@ export default function HomePage() {
   const { data: politicalNews, isLoading: politicalLoading } = useGetNewsByCategory(NewsCategory.political);
   const { data: movieNews, isLoading: movieLoading } = useGetNewsByCategory(NewsCategory.movie);
 
-  // Sort by date descending
-  const sortedAll = allNews ?? [];
-  const heroArticle = sortedAll[0] ?? null;
-  const secondaryArticles = sortedAll.slice(1, 4);
+  // Articles are returned newest-first from the backend (sorted by createdAt descending)
+  const articles = allNews ?? [];
+  const heroArticle = articles[0] ?? null;
+  const secondaryArticles = articles.slice(1, 4);
 
   const recentPolitical = politicalNews ?? [];
   const recentMovies = movieNews ?? [];

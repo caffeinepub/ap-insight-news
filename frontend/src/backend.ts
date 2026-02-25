@@ -95,6 +95,7 @@ export interface News {
     expiresAt: Time;
     imageData?: string;
     fullContent: string;
+    createdAt: Time;
     author: string;
     summary: string;
     publicationDate: string;
@@ -418,6 +419,7 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
     expiresAt: _Time;
     imageData: [] | [string];
     fullContent: string;
+    createdAt: _Time;
     author: string;
     summary: string;
     publicationDate: string;
@@ -428,6 +430,7 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
     expiresAt: Time;
     imageData?: string;
     fullContent: string;
+    createdAt: Time;
     author: string;
     summary: string;
     publicationDate: string;
@@ -439,6 +442,7 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
         expiresAt: value.expiresAt,
         imageData: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.imageData)),
         fullContent: value.fullContent,
+        createdAt: value.createdAt,
         author: value.author,
         summary: value.summary,
         publicationDate: value.publicationDate,

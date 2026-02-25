@@ -1,14 +1,23 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T22:15:17.973Z",
-  "summary": "REQ-1 is fully implemented. The Google AdSense script tag with the correct publisher ID, async attribute, and crossorigin=\"anonymous\" attribute has been added inside the <head> element of frontend/index.html. Existing head content (meta charset, viewport, title) is preserved intact.",
+  "generatedAt": "2026-02-25T22:52:54.531Z",
+  "summary": "The diff implements both REQ-1 (backend sorting) and REQ-2 (frontend ordering). REQ-1 is fully addressed in backend/main.mo with a descending sort comparator applied in getAllNews() and getNewsByCategory(). REQ-2 is partially addressed: the frontend-file-summaries.txt confirms HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, and BreakingNewsTicker all render in backend order. However, useQueries.ts introduces a client-side sortNewestFirst helper applied after fetching — this is redundant given the backend already sorts, but does not contradict the newest-first order. The key concern for REQ-2 AC is technically met since the client-side sort aligns with backend order rather than reversing it.",
   "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.99,
+  "hallucinated_features": [
+    {
+      "description": "Client-side sortNewestFirst helper applied in useGetAllNews and useGetNewsByCategory after fetching from backend",
+      "reason": "REQ-2 explicitly requires that frontend pages render articles in the exact order returned by the backend without any client-side re-sorting. Adding a redundant client-side sort was not requested and the AC states no client-side sort should be applied that contradicts backend order, implying no additional sorting logic should be introduced.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    }
+  ],
+  "confidence": 0.78,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.html",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

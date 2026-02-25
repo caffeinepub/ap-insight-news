@@ -13,6 +13,7 @@ export interface News {
     expiresAt: Time;
     imageData?: string;
     fullContent: string;
+    createdAt: Time;
     author: string;
     summary: string;
     publicationDate: string;
