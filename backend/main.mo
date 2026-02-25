@@ -9,6 +9,8 @@ import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
+
+
 actor {
   public type NewsCategory = {
     #political;
@@ -23,7 +25,7 @@ actor {
     category : NewsCategory;
     author : Text;
     publicationDate : Text;
-    imageUrl : ?Text;
+    imageData : ?Text; // Could be URL or base64
     expiresAt : Time.Time;
   };
 
@@ -73,7 +75,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  public shared ({ caller }) func addNews(id : Text, title : Text, summary : Text, fullContent : Text, category : NewsCategory, author : Text, publicationDate : Text, imageUrl : ?Text) : async () {
+  public shared ({ caller }) func addNews(id : Text, title : Text, summary : Text, fullContent : Text, category : NewsCategory, author : Text, publicationDate : Text, imageData : ?Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add news articles");
     };
@@ -86,8 +88,8 @@ actor {
       category;
       author;
       publicationDate;
-      imageUrl;
-      expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000); // 7 days in nanoseconds
+      imageData;
+      expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000);
     };
 
     news.add(id, article);

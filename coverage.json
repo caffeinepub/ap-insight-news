@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T20:55:06.102Z",
+  "generatedAt": "2026-02-25T22:15:17.976Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,24 +12,25 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
+        "summary": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/AdminPage.tsx"
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/pages/AdminPage.tsx"
+          "frontend/index.html"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
+    "build-template/README.md",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/AdminPage.tsx",
+    "frontend/index.html",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

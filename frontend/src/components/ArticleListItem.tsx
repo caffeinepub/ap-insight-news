@@ -20,7 +20,7 @@ function formatDate(dateStr: string): string {
 
 export default function ArticleListItem({ article }: ArticleListItemProps) {
   const imageSrc =
-    article.imageUrl ||
+    article.imageData ||
     (article.category === NewsCategory.political
       ? '/assets/generated/placeholder-political.dim_800x450.png'
       : '/assets/generated/placeholder-movie.dim_800x450.png');

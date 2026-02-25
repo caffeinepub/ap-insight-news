@@ -1,14 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Web project with Google AdSense integration and file upload functionality.",
+  "architectural_notes": [
+    "Google AdSense script (client ca-pub-2965680356233756) must be included in <head> on every page"
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-in-the-adminpage-article-form-replace-the-image-file-upload-input-file-picker-input-type-file-with-a-text-input-field-that-accepts-a-url-link-to-an-image-file-the-field-label-should-read-image-url-and-accept-a-standard-http-https-url-string-the-submitted-image-url-should-be-stored-and-used-wherever-article-images-are-rendered",
-      "title": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
+      "id": "feature-add-the-google-adsense-script-tag-script-async-src-https-pagead2-googlesyndication-com-pagead-js-adsbygoogle-js-client-ca-pub-2965680356233756-crossorigin-anonymous-script-inside-the-head-element-of-frontend-index-html-this-is-the-single-html-entry-point-for-the-react-spa-so-adding-it-there-covers-all-pages",
+      "title": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
       "reqIds": [
         "REQ-1"
       ],
@@ -18,11 +20,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Change upload image option to a link-to-file input instead of file upload",
+      "summary": "Add Google AdSense script tag to <head> on all pages for ad display",
       "reqIds": [],
       "status": "pending"
     }
   ],
+  "gameProjectType": "none",
   "projectName": "AP Insight News",
   "clarification_mode": "instant",
   "clarification_rounds": 0

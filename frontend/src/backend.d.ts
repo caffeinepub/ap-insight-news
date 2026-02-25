@@ -11,10 +11,10 @@ export interface News {
     id: string;
     title: string;
     expiresAt: Time;
+    imageData?: string;
     fullContent: string;
     author: string;
     summary: string;
-    imageUrl?: string;
     publicationDate: string;
     category: NewsCategory;
 }
@@ -40,7 +40,7 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageUrl: string | null): Promise<void>;
+    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageData: string | null): Promise<void>;
     addReview(articleId: string, reviewerName: string, rating: bigint, reviewText: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteNews(id: string): Promise<void>;

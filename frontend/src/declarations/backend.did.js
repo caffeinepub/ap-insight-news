@@ -22,10 +22,10 @@ export const News = IDL.Record({
   'id' : IDL.Text,
   'title' : IDL.Text,
   'expiresAt' : Time,
+  'imageData' : IDL.Opt(IDL.Text),
   'fullContent' : IDL.Text,
   'author' : IDL.Text,
   'summary' : IDL.Text,
-  'imageUrl' : IDL.Opt(IDL.Text),
   'publicationDate' : IDL.Text,
   'category' : NewsCategory,
 });
@@ -98,10 +98,10 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Text,
     'title' : IDL.Text,
     'expiresAt' : Time,
+    'imageData' : IDL.Opt(IDL.Text),
     'fullContent' : IDL.Text,
     'author' : IDL.Text,
     'summary' : IDL.Text,
-    'imageUrl' : IDL.Opt(IDL.Text),
     'publicationDate' : IDL.Text,
     'category' : NewsCategory,
   });

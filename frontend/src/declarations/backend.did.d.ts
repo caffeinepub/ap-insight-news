@@ -14,10 +14,10 @@ export interface News {
   'id' : string,
   'title' : string,
   'expiresAt' : Time,
+  'imageData' : [] | [string],
   'fullContent' : string,
   'author' : string,
   'summary' : string,
-  'imageUrl' : [] | [string],
   'publicationDate' : string,
   'category' : NewsCategory,
 }

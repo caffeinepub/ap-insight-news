@@ -93,10 +93,10 @@ export interface News {
     id: string;
     title: string;
     expiresAt: Time;
+    imageData?: string;
     fullContent: string;
     author: string;
     summary: string;
-    imageUrl?: string;
     publicationDate: string;
     category: NewsCategory;
 }
@@ -123,7 +123,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageUrl: string | null): Promise<void>;
+    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageData: string | null): Promise<void>;
     addReview(articleId: string, reviewerName: string, rating: bigint, reviewText: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteNews(id: string): Promise<void>;
@@ -416,20 +416,20 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
     id: string;
     title: string;
     expiresAt: _Time;
+    imageData: [] | [string];
     fullContent: string;
     author: string;
     summary: string;
-    imageUrl: [] | [string];
     publicationDate: string;
     category: _NewsCategory;
 }): {
     id: string;
     title: string;
     expiresAt: Time;
+    imageData?: string;
     fullContent: string;
     author: string;
     summary: string;
-    imageUrl?: string;
     publicationDate: string;
     category: NewsCategory;
 } {
@@ -437,10 +437,10 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
         id: value.id,
         title: value.title,
         expiresAt: value.expiresAt,
+        imageData: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.imageData)),
         fullContent: value.fullContent,
         author: value.author,
         summary: value.summary,
-        imageUrl: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.imageUrl)),
         publicationDate: value.publicationDate,
         category: from_candid_NewsCategory_n10(_uploadFile, _downloadFile, value.category)
     };

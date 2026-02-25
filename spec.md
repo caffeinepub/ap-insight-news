@@ -1,12 +1,9 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the image file upload input in the AdminPage article form with a URL text input field.
+**Goal:** Add the Google AdSense script tag to the HTML head of the React SPA entry point.
 
 **Planned changes:**
-- Remove the file picker (`<input type="file">`) from the AdminPage article form
-- Add a text input labeled "Image URL" that accepts an HTTP/HTTPS URL string
-- Update the backend to store and return the image field as a plain URL string instead of base64 or binary
-- Ensure existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images using the URL field
+- Add `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756" crossorigin="anonymous"></script>` inside the `<head>` element of `frontend/index.html`
 
-**User-visible outcome:** Admins can now provide an image URL when creating or editing articles instead of uploading a file, and article images are displayed using the provided URL throughout the site.
+**User-visible outcome:** Google AdSense is enabled across all pages of the site, allowing ads to be served via the publisher account ca-pub-2965680356233756.

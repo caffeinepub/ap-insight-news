@@ -35,7 +35,7 @@ function formatDate(dateStr: string): string {
 
 // Featured hero card
 function FeaturedCard({ article }: { article: News }) {
-  const imageSrc = article.imageUrl || getPlaceholderImage(article.category);
+  const imageSrc = article.imageData || getPlaceholderImage(article.category);
   return (
     <Link to="/article/$id" params={{ id: article.id }} className="block group">
       <div className="relative overflow-hidden bg-card border border-border">
@@ -76,7 +76,7 @@ function FeaturedCard({ article }: { article: News }) {
 
 // Newspaper grid card (compact, dense)
 function NewspaperCard({ article }: { article: News }) {
-  const imageSrc = article.imageUrl || getPlaceholderImage(article.category);
+  const imageSrc = article.imageData || getPlaceholderImage(article.category);
   return (
     <Link to="/article/$id" params={{ id: article.id }} className="block group">
       <div className="article-card overflow-hidden h-full flex flex-col">
@@ -114,7 +114,7 @@ function NewspaperCard({ article }: { article: News }) {
 
 // Default card
 function DefaultCard({ article }: { article: News }) {
-  const imageSrc = article.imageUrl || getPlaceholderImage(article.category);
+  const imageSrc = article.imageData || getPlaceholderImage(article.category);
   return (
     <Link to="/article/$id" params={{ id: article.id }} className="block group">
       <div className="article-card overflow-hidden h-full flex flex-col">
@@ -158,7 +158,7 @@ function DefaultCard({ article }: { article: News }) {
 
 // Compact card (used in sidebars)
 function CompactCard({ article }: { article: News }) {
-  const imageSrc = article.imageUrl || getPlaceholderImage(article.category);
+  const imageSrc = article.imageData || getPlaceholderImage(article.category);
   return (
     <Link to="/article/$id" params={{ id: article.id }} className="block group">
       <div className="flex gap-2 py-2 border-b border-border last:border-0">

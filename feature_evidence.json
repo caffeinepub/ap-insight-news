@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-adminpage-article-form-replace-the-image-file-upload-input-file-picker-input-type-file-with-a-text-input-field-that-accepts-a-url-link-to-an-image-file-the-field-label-should-read-image-url-and-accept-a-standard-http-https-url-string-the-submitted-image-url-should-be-stored-and-used-wherever-article-images-are-rendered",
-      "featureTitle": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
+      "featureId": "feature-add-the-google-adsense-script-tag-script-async-src-https-pagead2-googlesyndication-com-pagead-js-adsbygoogle-js-client-ca-pub-2965680356233756-crossorigin-anonymous-script-inside-the-head-element-of-frontend-index-html-this-is-the-single-html-entry-point-for-the-react-spa-so-adding-it-there-covers-all-pages",
+      "featureTitle": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
       "files": [
-        "frontend/src/pages/AdminPage.tsx"
+        "frontend/index.html"
       ],
       "components": [
         "core-infrastructure@1.0.2",

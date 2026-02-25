@@ -485,10 +485,10 @@ export default function ArticleDetailPage() {
         </header>
 
         {/* Featured image */}
-        {article.imageUrl && (
+        {article.imageData && (
           <div className="mb-6 overflow-hidden">
             <img
-              src={article.imageUrl}
+              src={article.imageData}
               alt={article.title}
               className="w-full max-h-[420px] object-cover"
             />
@@ -517,14 +517,10 @@ export default function ArticleDetailPage() {
         {/* Related articles */}
         {relatedArticles.length > 0 && (
           <section className="mt-10 pt-6 border-t border-border">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-primary">
-              <h2 className="section-title">Related Articles</h2>
-              <Link
-                to={categoryPath}
-                className="text-xs text-primary hover:underline font-sans"
-              >
-                View All →
-              </Link>
+            <div className="section-header mb-4">
+              <h2 className="font-condensed text-lg font-bold text-foreground uppercase tracking-wide">
+                Related Articles
+              </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {relatedArticles.map((related) => (
@@ -534,15 +530,15 @@ export default function ArticleDetailPage() {
           </section>
         )}
 
-        {/* Back link */}
+        {/* Back navigation */}
         <div className="mt-8 pt-4 border-t border-border">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-sans"
+          <button
+            onClick={() => navigate({ to: categoryPath })}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors font-sans"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Home
-          </Link>
+            <ArrowLeft className="w-4 h-4" />
+            Back to {categoryLabel}
+          </button>
         </div>
       </div>
     </main>

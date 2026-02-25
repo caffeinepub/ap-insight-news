@@ -1,23 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace image upload input with URL/link input in article form",
+  "title": "Add Google AdSense script tag to HTML head",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace the image file upload input in the AdminPage article form with a text input field that accepts an image URL. Store and display the URL string in all article rendering components.",
+      "summary": "Add the Google AdSense script tag inside the <head> element of frontend/index.html to enable AdSense across all pages of the React SPA",
       "acceptanceCriteria": [
-        "The AdminPage article submission form no longer contains a file picker input for images.",
-        "A text input labeled 'Image URL' is present in the article form, accepting a URL string.",
-        "Submitting the form with a valid image URL saves the URL and the article displays using that URL as the image source.",
-        "The backend stores and returns image data as a URL string (no base64 or binary blob).",
-        "Existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images correctly using the URL field."
+        "The AdSense <script> tag with client=ca-pub-2965680356233756 is present inside <head> in frontend/index.html.",
+        "The script tag includes both the async attribute and crossorigin=\"anonymous\" attribute.",
+        "No existing head content (meta tags, title, other scripts) is removed or altered.",
+        "The app still loads and renders correctly after the change."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AdminPage.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Remove the file input state (imageFile, imagePreview) and replace with imageUrl state. Replace the file input UI (<input type='file'>) with a text input labeled 'Image URL' that accepts HTTP/HTTPS URL strings. Update the handleSubmit function to pass imageUrl (or null if empty) to the addNews mutation instead of converting a file to base64. Remove all file handling logic including readFileAsBase64."
+          "description": "Insert the Google AdSense script tag <script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script> inside the <head> element. Place it after any existing meta tags and before the closing </head> tag. Ensure the async and crossorigin attributes are included exactly as specified. Do not modify or remove any existing head content."
         }
       ]
     }

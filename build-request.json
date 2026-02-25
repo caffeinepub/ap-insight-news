@@ -1,38 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Replace image upload input with URL/link input in article form",
+  "title": "Add Google AdSense script tag to HTML head",
   "projectName": "AP Insight News",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
-      "target": "both",
+      "text": "Add the Google AdSense script tag `<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>` inside the `<head>` element of `frontend/index.html`. This is the single HTML entry point for the React SPA, so adding it there covers all pages.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-6"
         ],
         "quotes": [
-          "Please change the upload image option as link to file"
+          "copy and paste this code between the <head></head> tags on each page of our site.<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2965680356233756\" crossorigin=\"anonymous\"></script>"
         ]
       },
       "acceptanceCriteria": [
-        "The AdminPage article submission form no longer contains a file picker input for images.",
-        "A text input labeled 'Image URL' is present in the article form, accepting a URL string.",
-        "Submitting the form with a valid image URL saves the URL and the article displays using that URL as the image source.",
-        "The backend stores and returns image data as a URL string (no base64 or binary blob).",
-        "Existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images correctly using the URL field."
+        "The AdSense `<script>` tag with `client=ca-pub-2965680356233756` is present inside `<head>` in `frontend/index.html`.",
+        "The script tag includes both the `async` attribute and `crossorigin=\"anonymous\"` attribute.",
+        "No existing head content (meta tags, title, other scripts) is removed or altered.",
+        "The app still loads and renders correctly after the change."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "Image URLs must be plain HTTP/HTTPS strings — no base64 encoding or binary file storage."
+    "Do not modify any backend files.",
+    "Do not alter any existing head tags, meta tags, or other scripts already present in frontend/index.html.",
+    "Use the exact AdSense publisher ID: ca-pub-2965680356233756."
   ],
   "nonGoals": [
-    "No image hosting or upload proxy service.",
-    "No validation of whether the URL points to a valid image at submission time.",
-    "No changes to the reviews or user profile features."
+    "Adding or modifying AdBanner component placements on any page.",
+    "Creating new ad units or ad slot configurations.",
+    "Any backend changes."
   ],
   "imageRequirements": {
     "required": [],

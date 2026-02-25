@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useActor } from '../hooks/useActor';
@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Plus, Loader2, AlertCircle, Clock, Newspaper, Star, Link } from 'lucide-react';
+import { Trash2, Plus, Loader2, AlertCircle, Clock, Newspaper, Star, Upload, X, ImageIcon } from 'lucide-react';
 
 function formatExpiry(expiresAt: bigint): string {
   const ms = Number(expiresAt) / 1_000_000;
@@ -49,7 +49,7 @@ interface ArticleFormData {
   category: NewsCategory;
   author: string;
   publicationDate: string;
-  imageUrl: string;
+  imageData: string;
 }
 
 const emptyForm: ArticleFormData = {
@@ -59,7 +59,7 @@ const emptyForm: ArticleFormData = {
   category: NewsCategory.political,
   author: '',
   publicationDate: new Date().toISOString().split('T')[0],
-  imageUrl: '',
+  imageData: '',
 };
 
 export default function AdminPage() {
@@ -70,6 +70,9 @@ export default function AdminPage() {
   const [form, setForm] = useState<ArticleFormData>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFileName, setImageFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: articles = [], isLoading: articlesLoading } = useGetAllNews();
   const addNewsMutation = useAddNews();
@@ -95,6 +98,35 @@ export default function AdminPage() {
       category: e.target.value === 'movie' ? NewsCategory.movie : NewsCategory.political,
     }));
     setFormError(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFileName(file.name);
+    setFormError(null);
+    setFormSuccess(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setForm((prev) => ({ ...prev, imageData: base64 }));
+      setImagePreview(base64);
+    };
+    reader.onerror = () => {
+      setFormError('Failed to read the selected image file. Please try again.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setForm((prev) => ({ ...prev, imageData: '' }));
+    setImagePreview(null);
+    setImageFileName(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const validateForm = (): string | null => {
@@ -136,9 +168,14 @@ export default function AdminPage() {
         category: form.category,
         author: form.author.trim(),
         publicationDate: form.publicationDate.trim(),
-        imageUrl: form.imageUrl.trim() || null,
+        imageUrl: form.imageData || null,
       });
       setForm(emptyForm);
+      setImagePreview(null);
+      setImageFileName(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       setFormSuccess('Article added successfully! It will expire in 7 days.');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -307,24 +344,81 @@ export default function AdminPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="imageUrl" className="flex items-center gap-1.5">
-              <Link className="w-3.5 h-3.5 text-muted-foreground" />
-              Image URL
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              Upload Image
               <span className="text-muted-foreground text-xs font-normal">(optional)</span>
             </Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              type="url"
-              value={form.imageUrl}
-              onChange={handleFormChange}
-              placeholder="https://example.com/image.jpg"
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              id="imageUpload"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleFileChange}
               disabled={addNewsMutation.isPending}
+              className="sr-only"
+              aria-label="Upload article image"
             />
-            <p className="text-xs text-muted-foreground">
-              Paste a direct link to the image file (e.g. https://example.com/photo.jpg)
-            </p>
+
+            {imagePreview ? (
+              /* Preview area */
+              <div className="flex items-start gap-4 p-3 border border-border rounded-md bg-muted/20">
+                <img
+                  src={imagePreview}
+                  alt="Selected image preview"
+                  className="w-24 h-16 object-cover rounded border border-border flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{imageFileName}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Image selected and ready to upload</p>
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={addNewsMutation.isPending}
+                      className="text-xs h-7"
+                    >
+                      <Upload className="w-3 h-3 mr-1" />
+                      Change
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      disabled={addNewsMutation.isPending}
+                      className="text-xs h-7 text-destructive hover:text-destructive"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Upload button */
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={addNewsMutation.isPending}
+                className="w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-border rounded-md bg-muted/10 hover:bg-muted/30 hover:border-accent/50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                aria-label="Click to upload an image from your device"
+              >
+                <Upload className="w-8 h-8 text-muted-foreground" />
+                <div className="text-center">
+                  <p className="text-sm font-medium text-foreground">Click to upload image</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Supports JPEG, PNG, GIF, WebP
+                  </p>
+                </div>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-end pt-2">
@@ -427,9 +521,9 @@ export default function AdminPage() {
                       : 'border-border bg-background'
                   }`}
                 >
-                  {article.imageUrl && (
+                  {article.imageData && (
                     <img
-                      src={article.imageUrl}
+                      src={article.imageData}
                       alt={article.title}
                       className="w-16 h-12 object-cover rounded flex-shrink-0"
                       onError={(e) => {
