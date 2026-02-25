@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T20:41:36.433Z",
+  "generatedAt": "2026-02-25T20:55:06.102Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,17 +12,13 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Diagnose and fix the 'Unable to connect to backend' error that users are experiencing in production. Ensure the backend actor is correctly initialized and that the canister ID environment variables are properly wired so the frontend can establish a connection to the Motoko backend on page load.",
+        "summary": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/components/ActorLoadingGuard.tsx",
-          "frontend/.env.development",
-          "frontend/.env.production",
-          "frontend/vite.config.ts"
+          "frontend/src/pages/AdminPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/ActorLoadingGuard.tsx"
+          "frontend/src/pages/AdminPage.tsx"
         ]
       }
     ]
@@ -33,11 +29,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/ActorLoadingGuard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

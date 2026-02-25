@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the "Unable to connect to backend" error so the frontend can successfully connect to the Motoko backend on page load.
+**Goal:** Replace the image file upload input in the AdminPage article form with a URL text input field.
 
 **Planned changes:**
-- Diagnose and fix the backend actor initialization so it connects correctly on page load
-- Ensure canister ID environment variables are properly wired for the frontend to reach the backend
-- Verify the `ActorLoadingGuard` component transitions from loading to ready state without errors
+- Remove the file picker (`<input type="file">`) from the AdminPage article form
+- Add a text input labeled "Image URL" that accepts an HTTP/HTTPS URL string
+- Update the backend to store and return the image field as a plain URL string instead of base64 or binary
+- Ensure existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images using the URL field
 
-**User-visible outcome:** The app loads without displaying the "Unable to connect to backend" error, and backend data (e.g., news articles) loads successfully on the home page.
+**User-visible outcome:** Admins can now provide an image URL when creating or editing articles instead of uploading a file, and article images are displayed using the provided URL throughout the site.

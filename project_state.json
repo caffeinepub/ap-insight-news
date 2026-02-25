@@ -3,22 +3,27 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Backend connection failure: users receiving 'Unable to connect to backend' error in production (Version 16)"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-diagnose-and-fix-the-unable-to-connect-to-backend-error-that-users-are-experiencing-in-production-ensure-the-backend-actor-is-correctly-initialized-and-that-the-canister-id-environment-variables-are-properly-wired-so-the-frontend-can-establish-a-connection-to-the-motoko-backend-on-page-load",
-      "title": "Diagnose and fix the 'Unable to connect to backend' error that users are experiencing in production. Ensure the backend actor is correctly initialized and that the canister ID environment variables are properly wired so the frontend can establish a connection to the Motoko backend on page load.",
+      "id": "feature-in-the-adminpage-article-form-replace-the-image-file-upload-input-file-picker-input-type-file-with-a-text-input-field-that-accepts-a-url-link-to-an-image-file-the-field-label-should-read-image-url-and-accept-a-standard-http-https-url-string-the-submitted-image-url-should-be-stored-and-used-wherever-article-images-are-rendered",
+      "title": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix backend connection failure ('Unable to connect to backend')",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Change upload image option to a link-to-file input instead of file upload",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "AP Insight News",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

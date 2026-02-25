@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Plus, Loader2, AlertCircle, Clock, Newspaper, Star } from 'lucide-react';
+import { Trash2, Plus, Loader2, AlertCircle, Clock, Newspaper, Star, Link } from 'lucide-react';
 
 function formatExpiry(expiresAt: bigint): string {
   const ms = Number(expiresAt) / 1_000_000;
@@ -78,8 +78,6 @@ export default function AdminPage() {
 
   const isAuthenticated = !!identity;
 
-  // Count expired articles (backend filters them, so this will always be 0 from getAllNews)
-  // We show the purge button regardless for admin convenience
   const expiredCount = articles.filter((a) => isExpired(a.expiresAt)).length;
 
   const handleFormChange = (
@@ -310,15 +308,23 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="imageUrl">Upload Image <span className="text-muted-foreground text-xs">(optional)</span></Label>
+            <Label htmlFor="imageUrl" className="flex items-center gap-1.5">
+              <Link className="w-3.5 h-3.5 text-muted-foreground" />
+              Image URL
+              <span className="text-muted-foreground text-xs font-normal">(optional)</span>
+            </Label>
             <Input
               id="imageUrl"
               name="imageUrl"
+              type="url"
               value={form.imageUrl}
               onChange={handleFormChange}
               placeholder="https://example.com/image.jpg"
               disabled={addNewsMutation.isPending}
             />
+            <p className="text-xs text-muted-foreground">
+              Paste a direct link to the image file (e.g. https://example.com/photo.jpg)
+            </p>
           </div>
 
           <div className="flex justify-end pt-2">

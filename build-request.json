@@ -1,35 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Fix backend connection failure ('Unable to connect to backend')",
-  "priority": "high",
+  "title": "Replace image upload input with URL/link input in article form",
+  "projectName": "AP Insight News",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Diagnose and fix the 'Unable to connect to backend' error that users are experiencing in production. Ensure the backend actor is correctly initialized and that the canister ID environment variables are properly wired so the frontend can establish a connection to the Motoko backend on page load.",
+      "text": "In the AdminPage article form, replace the image file upload input (file picker / <input type='file'>) with a text input field that accepts a URL/link to an image file. The field label should read 'Image URL' and accept a standard HTTP/HTTPS URL string. The submitted image URL should be stored and used wherever article images are rendered.",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-6"
         ],
         "quotes": [
-          "I am getting ' Unable to connect to backend'"
+          "Please change the upload image option as link to file"
         ]
       },
       "acceptanceCriteria": [
-        "The app loads without displaying the 'Unable to connect to backend' error message",
-        "The ActorLoadingGuard component transitions from loading state to ready state successfully",
-        "Backend queries (e.g., fetching news articles on the home page) complete without connection errors",
-        "The retry button in the ActorLoadingGuard is not needed under normal conditions"
+        "The AdminPage article submission form no longer contains a file picker input for images.",
+        "A text input labeled 'Image URL' is present in the article form, accepting a URL string.",
+        "Submitting the form with a valid image URL saves the URL and the article displays using that URL as the image source.",
+        "The backend stores and returns image data as a URL string (no base64 or binary blob).",
+        "Existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images correctly using the URL field."
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend data model or existing Motoko actor logic",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/main.tsx"
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Image URLs must be plain HTTP/HTTPS strings — no base64 encoding or binary file storage."
   ],
   "nonGoals": [
-    "Adding new features or UI changes unrelated to the connection fix",
-    "Changing authentication flow or Internet Identity integration"
+    "No image hosting or upload proxy service.",
+    "No validation of whether the URL points to a valid image at submission time.",
+    "No changes to the reviews or user profile features."
   ],
   "imageRequirements": {
     "required": [],

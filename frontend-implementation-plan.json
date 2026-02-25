@@ -1,42 +1,23 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix backend connection failure ('Unable to connect to backend')",
+  "title": "Replace image upload input with URL/link input in article form",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Diagnose and fix the 'Unable to connect to backend' error by ensuring the backend actor is correctly initialized with proper canister ID environment variables",
+      "summary": "Replace the image file upload input in the AdminPage article form with a text input field that accepts an image URL. Store and display the URL string in all article rendering components.",
       "acceptanceCriteria": [
-        "The app loads without displaying the 'Unable to connect to backend' error message",
-        "The ActorLoadingGuard component transitions from loading state to ready state successfully",
-        "Backend queries (e.g., fetching news articles on the home page) complete without connection errors",
-        "The retry button in the ActorLoadingGuard is not needed under normal conditions"
+        "The AdminPage article submission form no longer contains a file picker input for images.",
+        "A text input labeled 'Image URL' is present in the article form, accepting a URL string.",
+        "Submitting the form with a valid image URL saves the URL and the article displays using that URL as the image source.",
+        "The backend stores and returns image data as a URL string (no base64 or binary blob).",
+        "Existing article image rendering components (ArticleCard, ArticleDetailPage, etc.) continue to display images correctly using the URL field."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/pages/AdminPage.tsx",
           "operation": "modify",
-          "description": "Review and fix the actor initialization logic to ensure canister ID environment variables (VITE_CANISTER_ID_BACKEND or CANISTER_ID_BACKEND) are correctly accessed and passed to the HttpAgent. Verify the agent configuration includes proper host URL and identity handling. Ensure error handling properly captures and reports connection failures. Use the core-infrastructure component's backend connection configuration to support proper canister ID resolution."
-        },
-        {
-          "path": "frontend/src/components/ActorLoadingGuard.tsx",
-          "operation": "modify",
-          "description": "Enhance error diagnostics in the ActorLoadingGuard component to display more specific error messages when backend connection fails, including canister ID availability and network connectivity information. Ensure the component properly reflects the actor loading states from useActor hook."
-        },
-        {
-          "path": "frontend/.env.development",
-          "operation": "create",
-          "description": "Create environment configuration file to define VITE_CANISTER_ID_BACKEND and VITE_DFX_NETWORK variables for local development, ensuring proper canister ID resolution during development mode."
-        },
-        {
-          "path": "frontend/.env.production",
-          "operation": "create",
-          "description": "Create production environment configuration file to define VITE_CANISTER_ID_BACKEND for production deployment, ensuring the frontend can resolve the backend canister ID when deployed to mainnet or production networks."
-        },
-        {
-          "path": "frontend/vite.config.ts",
-          "operation": "modify",
-          "description": "Review and update Vite configuration to ensure environment variables are properly loaded and exposed to the application. Verify that canister ID environment variables are correctly passed through the build process using define or envPrefix configuration."
+          "description": "Remove the file input state (imageFile, imagePreview) and replace with imageUrl state. Replace the file input UI (<input type='file'>) with a text input labeled 'Image URL' that accepts HTTP/HTTPS URL strings. Update the handleSubmit function to pass imageUrl (or null if empty) to the addNews mutation instead of converting a file to base64. Remove all file handling logic including readFileAsBase64."
         }
       ]
     }
