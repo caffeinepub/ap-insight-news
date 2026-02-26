@@ -1,74 +1,54 @@
 {
   "kind": "build_request",
-  "title": "Fix infinite loading state — restart and stabilize app initialization",
-  "priority": "high",
+  "title": "Sort articles in descending order by date (latest first)",
+  "projectName": "AP Insight News",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
-      "target": "frontend",
+      "text": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "not working still it is loading"
+          "Please arrange the articles in dicending order in date.example latest date articles showing firts."
         ]
       },
       "acceptanceCriteria": [
-        "The app no longer hangs on the loading spinner indefinitely",
-        "If actor initialization exceeds 15 seconds, an error message and retry button are shown",
-        "On successful initialization, the app renders normally without a loading state"
+        "The backend function returning all articles returns them sorted by date descending.",
+        "The most recently dated article appears at index 0 of the returned array."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-3",
-          "msg-4"
-        ],
-        "quotes": [
-          "go live option is now visible and working",
-          "not working still it is loading"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Authenticated admin users see the 'Go Live' button in the header",
-        "Clicking 'Go Live' calls the backend and updates the live status",
-        "The button label switches to 'End Live' when the broadcast is active",
-        "The button does not remain in a loading/disabled state after the toggle completes"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
+      "text": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "restart if it will works",
-          "still it is loading"
+          "Please arrange the articles in dicending order in date.example latest date articles showing firts."
         ]
       },
       "acceptanceCriteria": [
-        "Actor creation errors are caught and displayed to the user",
-        "The app does not silently hang when the actor fails to initialize",
-        "A 'Retry' button is available when actor initialization fails"
+        "On the Home page, the hero and secondary story articles reflect the latest articles first.",
+        "On the Political News and Movie News pages, articles are listed from newest to oldest.",
+        "The Top Stories sidebar and Breaking News ticker display the most recent articles first.",
+        "No article with an older date appears before an article with a newer date in any list view."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "All Motoko logic must remain in backend/main.mo"
+    "Do not change the article data model or schema.",
+    "Do not modify files listed in frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Do not change the backend data model or existing API methods",
-    "Do not introduce new pages or features unrelated to the loading and Go Live fix"
+    "Adding user-facing sort controls or filters.",
+    "Changing pagination behavior beyond sort order.",
+    "Modifying article detail page layout."
   ],
   "imageRequirements": {
     "required": [],

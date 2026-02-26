@@ -57,6 +57,7 @@ export interface backendInterface {
     getLiveStatus(): Promise<LiveStatus>;
     getNewsByCategory(category: NewsCategory): Promise<Array<News>>;
     getNewsById(id: string): Promise<News>;
+    getRecentReviews(limit: bigint): Promise<Array<Review>>;
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;

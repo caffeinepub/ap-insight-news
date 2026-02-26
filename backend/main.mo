@@ -132,6 +132,10 @@ actor {
     Int.compare(b.createdAt, a.createdAt);
   };
 
+  func compareReviewsByCreatedAt(a : Review, b : Review) : Order.Order {
+    Int.compare(b.createdAt, a.createdAt);
+  };
+
   public query func getAllNews() : async [News] {
     let filteredNews = news.values().toArray().filter(
       func(article) {
@@ -221,6 +225,20 @@ actor {
 
   public query func getAllReviews() : async [Review] {
     reviews.values().toArray();
+  };
+
+  public query func getRecentReviews(limit : Nat) : async [Review] {
+    let allReviewsArray = reviews.values().toArray().sort(
+      compareReviewsByCreatedAt
+    );
+
+    let reviewsArray = if (allReviewsArray.size() <= limit) {
+      allReviewsArray;
+    } else {
+      Array.tabulate(limit, func(i) { allReviewsArray[i] });
+    };
+
+    reviewsArray;
   };
 
   public shared ({ caller }) func deleteReview(id : Nat) : async () {

@@ -1,27 +1,19 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T03:54:21.799Z",
-  "summary": "The diff implements REQ-1 (timeout mechanism in ActorLoadingGuard with retry button) and REQ-2 (Go Live/End Live toggle in Header.tsx using useToggleLiveStatus). REQ-3 is partially addressed via the ActorLoadingGuard error/retry UI, but no dedicated error boundary component or explicit actor creation error catching is evident in the diff.",
-  "missing_requirements": [
-    {
-      "id": "REQ-3",
-      "requirement": "Audit and fix the useActor hook and actor initialization flow to ensure anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
-      "reason": "No React ErrorBoundary component or explicit try/catch around actor creation is added in the diff. The ActorLoadingGuard covers the timeout/retry UI but does not constitute a proper error boundary that catches actor creation exceptions. No new ErrorBoundary class component or wrapper that catches thrown errors from actor initialization is present.",
-      "evidence": [
-        "frontend/src/components/ActorLoadingGuard.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-26T04:49:11.417Z",
+  "summary": "Both REQ-1 and REQ-2 are fully implemented. The backend sorts articles by createdAt descending in getAllNews(), and all required frontend pages and sidebar components apply client-side sortByDateDesc sorting before rendering.",
+  "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.72,
+  "confidence": 0.97,
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/ActorLoadingGuard.tsx",
-    "frontend/src/components/Header.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/BreakingNewsTicker.tsx",
+    "frontend/src/components/TopStoriesSidebar.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MovieNewsPage.tsx",
+    "frontend/src/pages/PoliticalNewsPage.tsx",
     "project_state.json"
   ]
 }

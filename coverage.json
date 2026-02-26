@@ -1,48 +1,39 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T03:54:21.802Z",
+  "generatedAt": "2026-02-26T04:49:11.420Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ActorLoadingGuard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ActorLoadingGuard.tsx"
-        ]
+        "summary": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
+        "summary": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/PoliticalNewsPage.tsx",
+          "frontend/src/pages/MovieNewsPage.tsx",
+          "frontend/src/components/TopStoriesSidebar.tsx",
+          "frontend/src/components/BreakingNewsTicker.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ActorLoadingGuard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ActorLoadingGuard.tsx"
+          "frontend/src/pages/HomePage.tsx",
+          "frontend/src/pages/PoliticalNewsPage.tsx",
+          "frontend/src/pages/MovieNewsPage.tsx",
+          "frontend/src/components/TopStoriesSidebar.tsx",
+          "frontend/src/components/BreakingNewsTicker.tsx"
         ]
       }
     ]
@@ -55,11 +46,13 @@
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/ActorLoadingGuard.tsx",
-    "frontend/src/components/Header.tsx",
+    "frontend/src/components/BreakingNewsTicker.tsx",
+    "frontend/src/components/TopStoriesSidebar.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/MovieNewsPage.tsx",
+    "frontend/src/pages/PoliticalNewsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

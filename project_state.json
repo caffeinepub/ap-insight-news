@@ -1,38 +1,38 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project involves an articles/content platform. User wants articles sorted by date in descending order (latest first).",
   "architectural_notes": [],
   "known_issues": [],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-infinite-loading-state-in-actorloadingguard-ensure-the-backend-actor-initialization-completes-successfully-and-does-not-hang-indefinitely-add-a-timeout-mechanism-e-g-15-seconds-after-which-the-guard-transitions-to-an-error-retry-state-instead-of-spinning-forever",
-      "title": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-the-go-live-end-live-admin-button-in-header-tsx-is-visible-and-functional-for-authenticated-admin-users-the-button-should-correctly-call-the-backend-togglelivestatus-or-equivalent-function-and-reflect-the-current-live-state-after-toggling",
-      "title": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
+      "id": "feature-in-the-frontend-ensure-all-article-listing-pages-homepage-politicalnewspage-movienewspage-and-sidebar-components-topstoriessidebar-breakingnewsticker-display-articles-in-descending-date-order-latest-first-if-client-side-sorting-is-needed-to-complement-the-backend-change-apply-a-sort-by-date-descending-before-rendering",
+      "title": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-audit-and-fix-the-useactor-hook-and-actor-initialization-flow-to-ensure-the-anonymous-and-authenticated-actor-instances-are-created-without-errors-add-error-boundary-handling-so-any-actor-creation-failure-surfaces-a-user-readable-message-rather-than-a-silent-infinite-load",
-      "title": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix infinite loading state — restart and stabilize app initialization",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Sort articles in descending order by date (latest articles shown first)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "AP Insight News",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

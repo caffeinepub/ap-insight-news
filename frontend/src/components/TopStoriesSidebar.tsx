@@ -7,6 +7,14 @@ interface TopStoriesSidebarProps {
   title?: string;
 }
 
+function sortByDateDesc(articles: News[]): News[] {
+  return [...articles].sort((a, b) => {
+    const timeA = Number(a.createdAt);
+    const timeB = Number(b.createdAt);
+    return timeB - timeA;
+  });
+}
+
 function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr).toLocaleDateString('en-IN', {
@@ -20,7 +28,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function TopStoriesSidebar({ articles, title = 'Top Stories' }: TopStoriesSidebarProps) {
-  const topArticles = articles.slice(0, 5);
+  // Sort by createdAt descending (latest first) before slicing top 5
+  const topArticles = sortByDateDesc(articles).slice(0, 5);
 
   return (
     <div className="space-y-4">

@@ -4,7 +4,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ArticleCard from '../components/ArticleCard';
 import AdBanner from '../components/AdBanner';
 import { useGetAllNews, useGetNewsByCategory } from '../hooks/useQueries';
-import { NewsCategory } from '../backend';
+import { NewsCategory, type News } from '../backend';
+
+function sortByDateDesc(articles: News[]): News[] {
+  return [...articles].sort((a, b) => {
+    const timeA = Number(a.createdAt);
+    const timeB = Number(b.createdAt);
+    return timeB - timeA;
+  });
+}
 
 function SectionDivider({ title, viewAllPath }: { title: string; viewAllPath: string }) {
   return (
@@ -43,13 +51,13 @@ export default function HomePage() {
   const { data: politicalNews, isLoading: politicalLoading } = useGetNewsByCategory(NewsCategory.political);
   const { data: movieNews, isLoading: movieLoading } = useGetNewsByCategory(NewsCategory.movie);
 
-  // Articles are returned newest-first from the backend (sorted by createdAt descending)
-  const articles = allNews ?? [];
+  // Sort articles by createdAt descending (latest first)
+  const articles = sortByDateDesc(allNews ?? []);
   const heroArticle = articles[0] ?? null;
   const secondaryArticles = articles.slice(1, 4);
 
-  const recentPolitical = politicalNews ?? [];
-  const recentMovies = movieNews ?? [];
+  const recentPolitical = sortByDateDesc(politicalNews ?? []);
+  const recentMovies = sortByDateDesc(movieNews ?? []);
 
   return (
     <main className="min-h-screen bg-background">

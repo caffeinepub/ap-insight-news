@@ -75,6 +75,7 @@ export const idlService = IDL.Service({
   'getLiveStatus' : IDL.Func([], [LiveStatus], ['query']),
   'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
   'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
+  'getRecentReviews' : IDL.Func([IDL.Nat], [IDL.Vec(Review)], ['query']),
   'getReviewsByArticleId' : IDL.Func([IDL.Text], [IDL.Vec(Review)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -158,6 +159,7 @@ export const idlFactory = ({ IDL }) => {
     'getLiveStatus' : IDL.Func([], [LiveStatus], ['query']),
     'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
     'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
+    'getRecentReviews' : IDL.Func([IDL.Nat], [IDL.Vec(Review)], ['query']),
     'getReviewsByArticleId' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(Review)],

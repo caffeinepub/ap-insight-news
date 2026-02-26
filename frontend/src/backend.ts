@@ -140,6 +140,7 @@ export interface backendInterface {
     getLiveStatus(): Promise<LiveStatus>;
     getNewsByCategory(category: NewsCategory): Promise<Array<News>>;
     getNewsById(id: string): Promise<News>;
+    getRecentReviews(limit: bigint): Promise<Array<Review>>;
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -331,6 +332,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getNewsById(arg0);
             return from_candid_News_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getRecentReviews(arg0: bigint): Promise<Array<Review>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getRecentReviews(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getRecentReviews(arg0);
+            return result;
         }
     }
     async getReviewsByArticleId(arg0: string): Promise<Array<Review>> {

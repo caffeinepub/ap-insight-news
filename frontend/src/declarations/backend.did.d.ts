@@ -64,6 +64,7 @@ export interface _SERVICE {
   'getLiveStatus' : ActorMethod<[], LiveStatus>,
   'getNewsByCategory' : ActorMethod<[NewsCategory], Array<News>>,
   'getNewsById' : ActorMethod<[string], News>,
+  'getRecentReviews' : ActorMethod<[bigint], Array<Review>>,
   'getReviewsByArticleId' : ActorMethod<[string], Array<Review>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,

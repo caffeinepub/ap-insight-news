@@ -2,30 +2,14 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-infinite-loading-state-in-actorloadingguard-ensure-the-backend-actor-initialization-completes-successfully-and-does-not-hang-indefinitely-add-a-timeout-mechanism-e-g-15-seconds-after-which-the-guard-transitions-to-an-error-retry-state-instead-of-spinning-forever",
-      "featureTitle": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
+      "featureId": "feature-in-the-frontend-ensure-all-article-listing-pages-homepage-politicalnewspage-movienewspage-and-sidebar-components-topstoriessidebar-breakingnewsticker-display-articles-in-descending-date-order-latest-first-if-client-side-sorting-is-needed-to-complement-the-backend-change-apply-a-sort-by-date-descending-before-rendering",
+      "featureTitle": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
       "files": [
-        "frontend/src/components/ActorLoadingGuard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-go-live-end-live-admin-button-in-header-tsx-is-visible-and-functional-for-authenticated-admin-users-the-button-should-correctly-call-the-backend-togglelivestatus-or-equivalent-function-and-reflect-the-current-live-state-after-toggling",
-      "featureTitle": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
-      "files": [
-        "frontend/src/components/Header.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/BreakingNewsTicker.tsx",
+        "frontend/src/components/TopStoriesSidebar.tsx",
+        "frontend/src/pages/HomePage.tsx",
+        "frontend/src/pages/MovieNewsPage.tsx",
+        "frontend/src/pages/PoliticalNewsPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -37,25 +21,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-audit-and-fix-the-useactor-hook-and-actor-initialization-flow-to-ensure-the-anonymous-and-authenticated-actor-instances-are-created-without-errors-add-error-boundary-handling-so-any-actor-creation-failure-surfaces-a-user-readable-message-rather-than-a-silent-infinite-load",
-      "featureTitle": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
-      "files": [
-        "frontend/src/components/ActorLoadingGuard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

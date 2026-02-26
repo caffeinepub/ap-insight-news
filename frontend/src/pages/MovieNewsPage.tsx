@@ -4,9 +4,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ArticleListItem from '../components/ArticleListItem';
 import TopStoriesSidebar from '../components/TopStoriesSidebar';
 import { useGetNewsByCategory } from '../hooks/useQueries';
-import { NewsCategory } from '../backend';
+import { NewsCategory, type News } from '../backend';
 
 const PAGE_SIZE = 10;
+
+function sortByDateDesc(articles: News[]): News[] {
+  return [...articles].sort((a, b) => {
+    const timeA = Number(a.createdAt);
+    const timeB = Number(b.createdAt);
+    return timeB - timeA;
+  });
+}
 
 function ListSkeleton() {
   return (
@@ -26,9 +34,11 @@ export default function MovieNewsPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const { data: articles, isLoading, isError } = useGetNewsByCategory(NewsCategory.movie);
 
-  const visibleArticles = articles?.slice(0, visibleCount) ?? [];
-  const hasMore = (articles?.length ?? 0) > visibleCount;
-  const topStories = articles?.slice(0, 5) ?? [];
+  // Sort articles by createdAt descending (latest first)
+  const sortedArticles = sortByDateDesc(articles ?? []);
+  const visibleArticles = sortedArticles.slice(0, visibleCount);
+  const hasMore = sortedArticles.length > visibleCount;
+  const topStories = sortedArticles.slice(0, 5);
 
   return (
     <main className="min-h-screen bg-background">
@@ -41,7 +51,7 @@ export default function MovieNewsPage() {
           </h1>
           {!isLoading && (
             <span className="text-xs text-muted-foreground font-sans ml-2">
-              ({articles?.length ?? 0} articles)
+              ({sortedArticles.length} articles)
             </span>
           )}
         </div>
@@ -90,7 +100,7 @@ export default function MovieNewsPage() {
                       Load More
                     </button>
                     <p className="text-muted-foreground text-xs font-sans mt-2">
-                      Showing {visibleCount} of {articles?.length} articles
+                      Showing {visibleCount} of {sortedArticles.length} articles
                     </p>
                   </div>
                 )}

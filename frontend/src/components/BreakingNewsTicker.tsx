@@ -1,9 +1,20 @@
 import { Link } from '@tanstack/react-router';
 import { useGetAllNews } from '../hooks/useQueries';
+import { type News } from '../backend';
+
+function sortByDateDesc(articles: News[]): News[] {
+  return [...articles].sort((a, b) => {
+    const timeA = Number(a.createdAt);
+    const timeB = Number(b.createdAt);
+    return timeB - timeA;
+  });
+}
 
 export default function BreakingNewsTicker() {
   const { data: allNews } = useGetAllNews();
-  const tickerItems = allNews?.slice(0, 10) ?? [];
+
+  // Sort by createdAt descending and take the 10 most recent articles
+  const tickerItems = sortByDateDesc(allNews ?? []).slice(0, 10);
 
   const defaultText = 'AP Insight News — Your trusted source for Political & Movie News from Andhra Pradesh and beyond';
 

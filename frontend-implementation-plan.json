@@ -1,59 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix infinite loading state and stabilize app initialization",
+  "title": "Sort articles in descending order by date (latest first)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Fix the infinite loading state in ActorLoadingGuard by adding a timeout mechanism and error/retry UI",
-      "acceptanceCriteria": [
-        "The app no longer hangs on the loading spinner indefinitely",
-        "If actor initialization exceeds 15 seconds, an error message and retry button are shown",
-        "On successful initialization, the app renders normally without a loading state"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/ActorLoadingGuard.tsx",
-          "operation": "modify",
-          "description": "Add a 15-second timeout mechanism using useEffect and setTimeout. Track timeout state separately from isFetching. When timeout occurs, display an error message with a retry button that calls window.location.reload() to restart the initialization flow. Ensure the loading spinner is only shown when isFetching is true and timeout has not occurred. Keep the existing error handling for isError state."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users",
+      "summary": "Ensure all frontend article listing pages and components display articles sorted by date in descending order (newest first)",
       "acceptanceCriteria": [
-        "Authenticated admin users see the 'Go Live' button in the header",
-        "Clicking 'Go Live' calls the backend and updates the live status",
-        "The button label switches to 'End Live' when the broadcast is active",
-        "The button does not remain in a loading/disabled state after the toggle completes"
+        "On the Home page, the hero and secondary story articles reflect the latest articles first.",
+        "On the Political News and Movie News pages, articles are listed from newest to oldest.",
+        "The Top Stories sidebar and Breaking News ticker display the most recent articles first.",
+        "No article with an older date appears before an article with a newer date in any list view."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Review the existing 'Go Live' / 'End Live' button implementation. Ensure the button is conditionally rendered when isAdmin is true and identity is present. Verify that the toggleLiveMutation from useQueries.ts is properly invoked on click and that the button's disabled state is correctly bound to mutation.isPending. Ensure the button label reflects the current liveStatus.isLive state (showing 'Go Live' when false, 'End Live' when true). Add error handling to display a toast or alert if the toggle operation fails. Verify that the mutation onSuccess callback properly invalidates the 'liveStatus' query to refresh the UI."
+          "description": "Apply client-side descending date sort to articles before selecting hero, secondary stories, and category sections to ensure the latest articles appear first."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/PoliticalNewsPage.tsx",
           "operation": "modify",
-          "description": "Review and ensure the useToggleLiveStatus mutation hook properly calls actor.toggleLiveStatus() and includes optimistic updates or query invalidation on success. Verify that the mutation returns the updated LiveStatus and that the queryClient invalidation for 'liveStatus' is present. Add error logging for debugging toggle failures."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Audit and fix the useActor hook and actor initialization flow to surface user-readable error messages instead of silent failures",
-      "acceptanceCriteria": [
-        "Actor creation errors are caught and displayed to the user",
-        "The app does not silently hang when the actor fails to initialize",
-        "A 'Retry' button is available when actor initialization fails"
-      ],
-      "file_operations": [
+          "description": "Apply client-side descending date sort to political news articles before rendering the paginated list to ensure newest articles appear first."
+        },
         {
-          "path": "frontend/src/components/ActorLoadingGuard.tsx",
+          "path": "frontend/src/pages/MovieNewsPage.tsx",
           "operation": "modify",
-          "description": "Enhance the existing error UI to handle both isError from useActor and the new timeout state from REQ-1. Display a user-friendly error message (e.g., 'Failed to connect to the backend. Please check your connection and try again.') when isError is true. Ensure the retry button calls window.location.reload() to restart the initialization. Add console logging of the error object for debugging purposes."
+          "description": "Apply client-side descending date sort to movie news articles before rendering the paginated list to ensure newest articles appear first."
+        },
+        {
+          "path": "frontend/src/components/TopStoriesSidebar.tsx",
+          "operation": "modify",
+          "description": "Apply client-side descending date sort to articles before selecting the top 5 to display in the sidebar, ensuring the most recent articles are shown."
+        },
+        {
+          "path": "frontend/src/components/BreakingNewsTicker.tsx",
+          "operation": "modify",
+          "description": "Apply client-side descending date sort to articles before selecting the latest 10 titles for the ticker, ensuring breaking news shows the most recent articles first."
         }
       ]
     }
