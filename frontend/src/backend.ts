@@ -89,6 +89,11 @@ export class ExternalBlob {
         return this;
     }
 }
+export type Time = bigint;
+export interface LiveStatus {
+    startedAt?: Time;
+    isLive: boolean;
+}
 export interface News {
     id: string;
     title: string;
@@ -101,7 +106,6 @@ export interface News {
     publicationDate: string;
     category: NewsCategory;
 }
-export type Time = bigint;
 export interface UserProfile {
     name: string;
 }
@@ -133,6 +137,7 @@ export interface backendInterface {
     getAllReviews(): Promise<Array<Review>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getLiveStatus(): Promise<LiveStatus>;
     getNewsByCategory(category: NewsCategory): Promise<Array<News>>;
     getNewsById(id: string): Promise<News>;
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
@@ -141,8 +146,9 @@ export interface backendInterface {
     isConnected(): Promise<boolean>;
     purgeExpiredArticles(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    toggleLiveStatus(): Promise<LiveStatus>;
 }
-import type { News as _News, NewsCategory as _NewsCategory, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { LiveStatus as _LiveStatus, News as _News, NewsCategory as _NewsCategory, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -285,6 +291,20 @@ export class Backend implements backendInterface {
             return from_candid_UserRole_n13(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getLiveStatus(): Promise<LiveStatus> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLiveStatus();
+                return from_candid_LiveStatus_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLiveStatus();
+            return from_candid_LiveStatus_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getNewsByCategory(arg0: NewsCategory): Promise<Array<News>> {
         if (this.processError) {
             try {
@@ -397,6 +417,23 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async toggleLiveStatus(): Promise<LiveStatus> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.toggleLiveStatus();
+                return from_candid_LiveStatus_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.toggleLiveStatus();
+            return from_candid_LiveStatus_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+}
+function from_candid_LiveStatus_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LiveStatus): LiveStatus {
+    return from_candid_record_n16(_uploadFile, _downloadFile, value);
 }
 function from_candid_NewsCategory_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _NewsCategory): NewsCategory {
     return from_candid_variant_n11(_uploadFile, _downloadFile, value);
@@ -410,8 +447,23 @@ function from_candid_UserRole_n13(_uploadFile: (file: ExternalBlob) => Promise<U
 function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
+function from_candid_opt_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Time]): Time | null {
+    return value.length === 0 ? null : value[0];
+}
 function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    startedAt: [] | [_Time];
+    isLive: boolean;
+}): {
+    startedAt?: Time;
+    isLive: boolean;
+} {
+    return {
+        startedAt: record_opt_to_undefined(from_candid_opt_n17(_uploadFile, _downloadFile, value.startedAt)),
+        isLive: value.isLive
+    };
 }
 function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: string;

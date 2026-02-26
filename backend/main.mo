@@ -1,6 +1,5 @@
 import Map "mo:core/Map";
 import Array "mo:core/Array";
-import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
@@ -10,8 +9,6 @@ import Principal "mo:core/Principal";
 import Order "mo:core/Order";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-
-
 
 actor {
   public type NewsCategory = {
@@ -27,7 +24,7 @@ actor {
     category : NewsCategory;
     author : Text;
     publicationDate : Text;
-    imageData : ?Text; // Could be URL or base64
+    imageData : ?Text;
     expiresAt : Time.Time;
     createdAt : Time.Time;
   };
@@ -45,6 +42,11 @@ actor {
     name : Text;
   };
 
+  public type LiveStatus = {
+    isLive : Bool;
+    startedAt : ?Time.Time;
+  };
+
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -52,6 +54,10 @@ actor {
   let reviews = Map.empty<Nat, Review>();
   var nextReviewId = 0;
   let userProfiles = Map.empty<Principal, UserProfile>();
+  var liveStatus : LiveStatus = {
+    isLive = false;
+    startedAt = null;
+  };
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -78,7 +84,16 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  public shared ({ caller }) func addNews(id : Text, title : Text, summary : Text, fullContent : Text, category : NewsCategory, author : Text, publicationDate : Text, imageData : ?Text) : async () {
+  public shared ({ caller }) func addNews(
+    id : Text,
+    title : Text,
+    summary : Text,
+    fullContent : Text,
+    category : NewsCategory,
+    author : Text,
+    publicationDate : Text,
+    imageData : ?Text,
+  ) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add news articles");
     };
@@ -101,7 +116,9 @@ actor {
 
   public query func getNewsById(id : Text) : async News {
     switch (news.get(id)) {
-      case (null) { Runtime.trap("Article not found.") };
+      case (null) {
+        Runtime.trap("Article not found.");
+      };
       case (?article) {
         if (Time.now() > article.expiresAt) {
           Runtime.trap("Article has expired");
@@ -122,7 +139,9 @@ actor {
       }
     );
 
-    filteredNews.sort(compareNewsByCreatedAtDescending);
+    filteredNews.sort(
+      compareNewsByCreatedAtDescending
+    );
   };
 
   public query func getNewsByCategory(category : NewsCategory) : async [News] {
@@ -132,10 +151,17 @@ actor {
       }
     );
 
-    filteredNews.sort(compareNewsByCreatedAtDescending);
+    filteredNews.sort(
+      compareNewsByCreatedAtDescending
+    );
   };
 
-  public shared ({ caller }) func addReview(articleId : Text, reviewerName : Text, rating : Nat, reviewText : Text) : async Nat {
+  public shared ({ caller }) func addReview(
+    articleId : Text,
+    reviewerName : Text,
+    rating : Nat,
+    reviewText : Text,
+  ) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can add reviews");
     };
@@ -229,6 +255,20 @@ actor {
       news.remove(id);
     };
   };
+
+  public shared ({ caller }) func toggleLiveStatus() : async LiveStatus {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can change live status");
+    };
+
+    liveStatus := {
+      isLive = not liveStatus.isLive;
+      startedAt = if (not liveStatus.isLive) { ?Time.now() } else { null };
+    };
+    liveStatus;
+  };
+
+  public query func getLiveStatus() : async LiveStatus {
+    liveStatus;
+  };
 };
-
-

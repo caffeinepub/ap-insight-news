@@ -1,32 +1,38 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Website project where articles should be sorted by latest first, but the sorting is not working as expected.",
+  "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Articles are not being sorted by latest first as expected"
-  ],
+  "known_issues": [],
   "isFixRequest": true,
-  "existing_features": [],
-  "new_feature_requests": [
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Ensure the backend returns all news articles sorted in descending order by `createdAt` (newest first). Audit the query/filter function in `backend/main.mo` that returns article lists and confirm the sort is applied correctly before returning results.",
+      "id": "feature-fix-the-infinite-loading-state-in-actorloadingguard-ensure-the-backend-actor-initialization-completes-successfully-and-does-not-hang-indefinitely-add-a-timeout-mechanism-e-g-15-seconds-after-which-the-guard-transitions-to-an-error-retry-state-instead-of-spinning-forever",
+      "title": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-2",
-      "summary": "Ensure that all frontend pages that display article lists (HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, BreakingNewsTicker) render articles in the exact order returned by the backend without any client-side re-sorting or reversal that could override the newest-first order.",
+      "id": "feature-ensure-the-go-live-end-live-admin-button-in-header-tsx-is-visible-and-functional-for-authenticated-admin-users-the-button-should-correctly-call-the-backend-togglelivestatus-or-equivalent-function-and-reflect-the-current-live-state-after-toggling",
+      "title": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
       "reqIds": [
         "REQ-2"
       ],
-      "status": "pending"
+      "version": 1
+    },
+    {
+      "id": "feature-audit-and-fix-the-useactor-hook-and-actor-initialization-flow-to-ensure-the-anonymous-and-authenticated-actor-instances-are-created-without-errors-add-error-boundary-handling-so-any-actor-creation-failure-surfaces-a-user-readable-message-rather-than-a-silent-infinite-load",
+      "title": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
     }
   ],
-  "projectName": "Fix article sorting — latest first",
+  "new_feature_requests": [],
+  "projectName": "Fix infinite loading state — restart and stabilize app initialization",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

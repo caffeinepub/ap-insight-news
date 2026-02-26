@@ -1,43 +1,59 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix article sorting — latest first",
+  "title": "Fix infinite loading state and stabilize app initialization",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Ensure all frontend pages display articles in the exact order returned by the backend (newest first) without client-side re-sorting or reversal",
+      "id": "REQ-1",
+      "summary": "Fix the infinite loading state in ActorLoadingGuard by adding a timeout mechanism and error/retry UI",
       "acceptanceCriteria": [
-        "HomePage hero and section lists show the most recently created article first.",
-        "PoliticalNewsPage and MovieNewsPage lists show newest articles at the top.",
-        "TopStoriesSidebar shows the 5 most recent articles in descending date order.",
-        "BreakingNewsTicker ticker shows the latest 10 articles newest first.",
-        "No client-side sort or reverse is applied that contradicts backend order."
+        "The app no longer hangs on the loading spinner indefinitely",
+        "If actor initialization exceeds 15 seconds, an error message and retry button are shown",
+        "On successful initialization, the app renders normally without a loading state"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
+          "path": "frontend/src/components/ActorLoadingGuard.tsx",
           "operation": "modify",
-          "description": "Review and remove any client-side sorting or reversal logic that may be applied to article arrays. Ensure that articles are rendered in the exact order returned from getAllNews() and getNewsByCategory() backend queries. Verify that the hero article selection (first article) and secondary stories (subsequent articles) respect the backend sort order without modification."
+          "description": "Add a 15-second timeout mechanism using useEffect and setTimeout. Track timeout state separately from isFetching. When timeout occurs, display an error message with a retry button that calls window.location.reload() to restart the initialization flow. Ensure the loading spinner is only shown when isFetching is true and timeout has not occurred. Keep the existing error handling for isError state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users",
+      "acceptanceCriteria": [
+        "Authenticated admin users see the 'Go Live' button in the header",
+        "Clicking 'Go Live' calls the backend and updates the live status",
+        "The button label switches to 'End Live' when the broadcast is active",
+        "The button does not remain in a loading/disabled state after the toggle completes"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Review the existing 'Go Live' / 'End Live' button implementation. Ensure the button is conditionally rendered when isAdmin is true and identity is present. Verify that the toggleLiveMutation from useQueries.ts is properly invoked on click and that the button's disabled state is correctly bound to mutation.isPending. Ensure the button label reflects the current liveStatus.isLive state (showing 'Go Live' when false, 'End Live' when true). Add error handling to display a toast or alert if the toggle operation fails. Verify that the mutation onSuccess callback properly invalidates the 'liveStatus' query to refresh the UI."
         },
         {
-          "path": "frontend/src/pages/PoliticalNewsPage.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Audit the component to ensure articles from getNewsByCategory(NewsCategory.political) are displayed in the exact order received from the backend. Remove any .sort(), .reverse(), or array manipulation that reorders articles. Ensure pagination logic preserves the original backend order when slicing arrays for display."
-        },
+          "description": "Review and ensure the useToggleLiveStatus mutation hook properly calls actor.toggleLiveStatus() and includes optimistic updates or query invalidation on success. Verify that the mutation returns the updated LiveStatus and that the queryClient invalidation for 'liveStatus' is present. Add error logging for debugging toggle failures."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Audit and fix the useActor hook and actor initialization flow to surface user-readable error messages instead of silent failures",
+      "acceptanceCriteria": [
+        "Actor creation errors are caught and displayed to the user",
+        "The app does not silently hang when the actor fails to initialize",
+        "A 'Retry' button is available when actor initialization fails"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/pages/MovieNewsPage.tsx",
+          "path": "frontend/src/components/ActorLoadingGuard.tsx",
           "operation": "modify",
-          "description": "Audit the component to ensure articles from getNewsByCategory(NewsCategory.movie) are displayed in the exact order received from the backend. Remove any .sort(), .reverse(), or array manipulation that reorders articles. Ensure pagination logic preserves the original backend order when slicing arrays for display."
-        },
-        {
-          "path": "frontend/src/components/TopStoriesSidebar.tsx",
-          "operation": "modify",
-          "description": "Review the component to ensure the top 5 articles are taken from the beginning of the getAllNews() array without applying additional sort or reverse operations. Use .slice(0, 5) to take the first 5 articles as-is from the backend response, ensuring they appear in descending createdAt order (newest first)."
-        },
-        {
-          "path": "frontend/src/components/BreakingNewsTicker.tsx",
-          "operation": "modify",
-          "description": "Review the ticker component to ensure the latest 10 articles are taken from the beginning of the getAllNews() array without additional sorting or reversal. Use .slice(0, 10) to take the first 10 articles directly from the backend response, preserving the newest-first order for display in the scrolling ticker."
+          "description": "Enhance the existing error UI to handle both isError from useActor and the new timeout state from REQ-1. Display a user-friendly error message (e.g., 'Failed to connect to the backend. Please check your connection and try again.') when isError is true. Ensure the retry button calls window.location.reload() to restart the initialization. Add console logging of the error object for debugging purposes."
         }
       ]
     }

@@ -1,15 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { NewsCategory, type News } from '../backend';
-
-/** Sort articles newest-first by createdAt (bigint nanoseconds). */
-function sortNewestFirst(articles: News[]): News[] {
-  return [...articles].sort((a, b) => {
-    if (b.createdAt > a.createdAt) return 1;
-    if (b.createdAt < a.createdAt) return -1;
-    return 0;
-  });
-}
+import { NewsCategory, type News, type LiveStatus } from '../backend';
 
 export function useGetAllNews() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -17,9 +8,8 @@ export function useGetAllNews() {
   const query = useQuery({
     queryKey: ['news', 'all'],
     queryFn: async () => {
-      if (!actor) return [];
-      const result = await actor.getAllNews();
-      return sortNewestFirst(result);
+      if (!actor) return [] as News[];
+      return actor.getAllNews();
     },
     enabled: !!actor && !actorFetching,
   });
@@ -36,9 +26,8 @@ export function useGetNewsByCategory(category: NewsCategory) {
   const query = useQuery({
     queryKey: ['news', 'category', category],
     queryFn: async () => {
-      if (!actor) return [];
-      const result = await actor.getNewsByCategory(category);
-      return sortNewestFirst(result);
+      if (!actor) return [] as News[];
+      return actor.getNewsByCategory(category);
     },
     enabled: !!actor && !actorFetching,
   });
@@ -240,18 +229,26 @@ export function useGetCallerUserProfile() {
 export function useIsCallerAdmin() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  const query = useQuery({
+  const query = useQuery<boolean>({
     queryKey: ['isCallerAdmin'],
     queryFn: async () => {
-      if (!actor) return false;
+      if (!actor) throw new Error('Actor not available');
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !actorFetching,
+    retry: false,
+    // Don't cache stale admin status — always re-check when actor changes
+    staleTime: 0,
   });
 
   return {
     ...query,
+    // isLoading is true while actor is initializing OR while the query is running
     isLoading: actorFetching || query.isLoading,
+    // isFetched is only true once we have a real actor and the query completed
+    isFetched: !!actor && !actorFetching && query.isFetched,
+    // data defaults to false if not yet fetched
+    data: query.data ?? false,
   };
 }
 
@@ -305,6 +302,46 @@ export function useAssignCallerUserRole() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['callerUserRole'] });
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+    },
+  });
+}
+
+export function useGetLiveStatus() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery<LiveStatus>({
+    queryKey: ['liveStatus'],
+    queryFn: async () => {
+      if (!actor) return { isLive: false } as LiveStatus;
+      return actor.getLiveStatus();
+    },
+    enabled: !!actor && !actorFetching,
+    refetchInterval: 30000,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+  };
+}
+
+export function useToggleLiveStatus() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
+      const result = await actor.toggleLiveStatus();
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['liveStatus'] });
+    },
+    onError: (error) => {
+      console.error('Failed to toggle live status:', error);
     },
   });
 }

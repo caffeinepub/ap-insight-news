@@ -1,55 +1,74 @@
 {
   "kind": "build_request",
-  "title": "Fix article sorting — latest first",
+  "title": "Fix infinite loading state — restart and stabilize app initialization",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Ensure the backend returns all news articles sorted in descending order by `createdAt` (newest first). Audit the query/filter function in `backend/main.mo` that returns article lists and confirm the sort is applied correctly before returning results.",
-      "target": "backend",
+      "text": "Fix the infinite loading state in ActorLoadingGuard: ensure the backend actor initialization completes successfully and does not hang indefinitely. Add a timeout mechanism (e.g., 15 seconds) after which the guard transitions to an error/retry state instead of spinning forever.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-4"
         ],
         "quotes": [
-          "articles still not sorted by latest first?"
+          "not working still it is loading"
         ]
       },
       "acceptanceCriteria": [
-        "The backend function that returns article lists sorts results by `createdAt` in descending order.",
-        "A newly added article appears first in the returned list.",
-        "Older articles appear after newer ones consistently."
+        "The app no longer hangs on the loading spinner indefinitely",
+        "If actor initialization exceeds 15 seconds, an error message and retry button are shown",
+        "On successful initialization, the app renders normally without a loading state"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure that all frontend pages that display article lists (HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, BreakingNewsTicker) render articles in the exact order returned by the backend without any client-side re-sorting or reversal that could override the newest-first order.",
-      "target": "frontend",
+      "text": "Ensure the 'Go Live' / 'End Live' admin button in Header.tsx is visible and functional for authenticated admin users. The button should correctly call the backend toggleLiveStatus (or equivalent) function and reflect the current live state after toggling.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-3",
+          "msg-4"
         ],
         "quotes": [
-          "articles still not sorted by latest first?"
+          "go live option is now visible and working",
+          "not working still it is loading"
         ]
       },
       "acceptanceCriteria": [
-        "HomePage hero and section lists show the most recently created article first.",
-        "PoliticalNewsPage and MovieNewsPage lists show newest articles at the top.",
-        "TopStoriesSidebar shows the 5 most recent articles in descending date order.",
-        "BreakingNewsTicker ticker shows the latest 10 articles newest first.",
-        "No client-side sort or reverse is applied that contradicts backend order."
+        "Authenticated admin users see the 'Go Live' button in the header",
+        "Clicking 'Go Live' calls the backend and updates the live status",
+        "The button label switches to 'End Live' when the broadcast is active",
+        "The button does not remain in a loading/disabled state after the toggle completes"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Audit and fix the useActor hook and actor initialization flow to ensure the anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "restart if it will works",
+          "still it is loading"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Actor creation errors are caught and displayed to the user",
+        "The app does not silently hang when the actor fails to initialize",
+        "A 'Retry' button is available when actor initialization fails"
       ]
     }
   ],
   "constraints": [
-    "Do not change the article data schema or existing fields.",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "All Motoko logic must remain in backend/main.mo"
   ],
   "nonGoals": [
-    "Adding new article fields or changing the data model.",
-    "Pagination logic changes beyond what is needed to fix sort order.",
-    "Any UI redesign or visual changes."
+    "Do not change the backend data model or existing API methods",
+    "Do not introduce new pages or features unrelated to the loading and Go Live fix"
   ],
   "imageRequirements": {
     "required": [],

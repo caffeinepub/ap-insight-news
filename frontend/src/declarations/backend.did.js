@@ -39,6 +39,10 @@ export const Review = IDL.Record({
   'rating' : IDL.Nat,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const LiveStatus = IDL.Record({
+  'startedAt' : IDL.Opt(Time),
+  'isLive' : IDL.Bool,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -68,6 +72,7 @@ export const idlService = IDL.Service({
   'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getLiveStatus' : IDL.Func([], [LiveStatus], ['query']),
   'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
   'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
   'getReviewsByArticleId' : IDL.Func([IDL.Text], [IDL.Vec(Review)], ['query']),
@@ -80,6 +85,7 @@ export const idlService = IDL.Service({
   'isConnected' : IDL.Func([], [IDL.Bool], ['query']),
   'purgeExpiredArticles' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'toggleLiveStatus' : IDL.Func([], [LiveStatus], []),
 });
 
 export const idlInitArgs = [];
@@ -116,6 +122,10 @@ export const idlFactory = ({ IDL }) => {
     'rating' : IDL.Nat,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const LiveStatus = IDL.Record({
+    'startedAt' : IDL.Opt(Time),
+    'isLive' : IDL.Bool,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -145,6 +155,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getLiveStatus' : IDL.Func([], [LiveStatus], ['query']),
     'getNewsByCategory' : IDL.Func([NewsCategory], [IDL.Vec(News)], ['query']),
     'getNewsById' : IDL.Func([IDL.Text], [News], ['query']),
     'getReviewsByArticleId' : IDL.Func(
@@ -161,6 +172,7 @@ export const idlFactory = ({ IDL }) => {
     'isConnected' : IDL.Func([], [IDL.Bool], ['query']),
     'purgeExpiredArticles' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'toggleLiveStatus' : IDL.Func([], [LiveStatus], []),
   });
 };
 

@@ -7,6 +7,11 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export type Time = bigint;
+export interface LiveStatus {
+    startedAt?: Time;
+    isLive: boolean;
+}
 export interface News {
     id: string;
     title: string;
@@ -19,7 +24,6 @@ export interface News {
     publicationDate: string;
     category: NewsCategory;
 }
-export type Time = bigint;
 export interface UserProfile {
     name: string;
 }
@@ -50,6 +54,7 @@ export interface backendInterface {
     getAllReviews(): Promise<Array<Review>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getLiveStatus(): Promise<LiveStatus>;
     getNewsByCategory(category: NewsCategory): Promise<Array<News>>;
     getNewsById(id: string): Promise<News>;
     getReviewsByArticleId(articleId: string): Promise<Array<Review>>;
@@ -58,4 +63,5 @@ export interface backendInterface {
     isConnected(): Promise<boolean>;
     purgeExpiredArticles(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    toggleLiveStatus(): Promise<LiveStatus>;
 }

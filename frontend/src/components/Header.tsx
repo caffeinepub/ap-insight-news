@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Menu, X, PenSquare, MessageSquare } from 'lucide-react';
+import { Menu, X, PenSquare, MessageSquare, Radio, Loader2 } from 'lucide-react';
 import BreakingNewsTicker from './BreakingNewsTicker';
+import { useIsCallerAdmin, useGetLiveStatus, useToggleLiveStatus } from '../hooks/useQueries';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 
 const navLinks = [
   { label: 'Home', path: '/' },
@@ -23,10 +25,35 @@ export default function Header() {
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
 
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
+
+  // Use isFetched to avoid showing admin controls before the check completes
+  const { data: isAdmin, isLoading: adminLoading, isFetched: adminFetched } = useIsCallerAdmin();
+  const { data: liveStatus } = useGetLiveStatus();
+  const toggleLiveMutation = useToggleLiveStatus();
+
+  const isLive = liveStatus?.isLive ?? false;
+  const isLiveLoading = toggleLiveMutation.isPending;
+
+  const handleLiveToggle = async () => {
+    try {
+      await toggleLiveMutation.mutateAsync();
+    } catch (err) {
+      // Error is handled by mutation state; logged in the hook
+    }
+  };
+
   const isActive = (path: string) => {
     if (path === '/') return currentPath === '/';
     return currentPath.startsWith(path);
   };
+
+  // Show admin controls only when:
+  // 1. User is authenticated
+  // 2. Admin check has completed (not still loading)
+  // 3. isAdmin is explicitly true
+  const showAdminControls = isAuthenticated && !adminLoading && adminFetched && isAdmin === true;
 
   return (
     <header className="w-full sticky top-0 z-50 shadow-news">
@@ -75,32 +102,68 @@ export default function Header() {
             <span className="hidden sm:block text-xs font-sans" style={{ color: 'oklch(0.5 0.02 260)' }}>
               {formatDate()}
             </span>
-            {/* Admin Reviews link — desktop (shown first) */}
-            <Link
-              to="/admin/reviews"
-              className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
-              style={{
-                color: isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
-                borderColor: 'oklch(0.45 0.22 25)',
-                backgroundColor: isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
-              }}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              Movie Reviews
-            </Link>
+
+            {/* Go Live / End Live button — admin only, desktop */}
+            {showAdminControls && (
+              <button
+                onClick={handleLiveToggle}
+                disabled={isLiveLoading}
+                className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors disabled:opacity-60"
+                style={
+                  isLive
+                    ? {
+                        color: 'oklch(1 0 0)',
+                        borderColor: 'oklch(0.45 0.22 25)',
+                        backgroundColor: 'oklch(0.45 0.22 25)',
+                      }
+                    : {
+                        color: 'oklch(0.45 0.22 25)',
+                        borderColor: 'oklch(0.45 0.22 25)',
+                        backgroundColor: 'transparent',
+                      }
+                }
+              >
+                {isLiveLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Radio className="w-3.5 h-3.5" />
+                )}
+                {isLive ? 'End Live' : 'Go Live'}
+              </button>
+            )}
+
+            {/* Admin Reviews link — desktop */}
+            {showAdminControls && (
+              <Link
+                to="/admin/reviews"
+                className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
+                style={{
+                  color: isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
+                  borderColor: 'oklch(0.45 0.22 25)',
+                  backgroundColor: isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
+                }}
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Movie Reviews
+              </Link>
+            )}
+
             {/* Admin Add Article link — desktop */}
-            <Link
-              to="/admin"
-              className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
-              style={{
-                color: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
-                borderColor: 'oklch(0.45 0.22 25)',
-                backgroundColor: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
-              }}
-            >
-              <PenSquare className="w-3.5 h-3.5" />
-              Add Article
-            </Link>
+            {showAdminControls && (
+              <Link
+                to="/admin"
+                className="hidden md:flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-sm border transition-colors"
+                style={{
+                  color: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(1 0 0)' : 'oklch(0.45 0.22 25)',
+                  borderColor: 'oklch(0.45 0.22 25)',
+                  backgroundColor: isActive('/admin') && !isActive('/admin/reviews') ? 'oklch(0.45 0.22 25)' : 'transparent',
+                }}
+              >
+                <PenSquare className="w-3.5 h-3.5" />
+                Add Article
+              </Link>
+            )}
+
             <button
               className="md:hidden p-2 rounded-sm hover:bg-secondary transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -142,24 +205,43 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              {/* Admin Reviews link — mobile (shown first) */}
-              <Link
-                to="/admin/reviews"
-                onClick={() => setMobileOpen(false)}
-                className={`nav-tab flex items-center gap-1.5 ${isActive('/admin/reviews') ? 'nav-tab-active' : ''}`}
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                Movie Reviews
-              </Link>
-              {/* Admin Add Article link — mobile */}
-              <Link
-                to="/admin"
-                onClick={() => setMobileOpen(false)}
-                className={`nav-tab flex items-center gap-1.5 ${isActive('/admin') && !isActive('/admin/reviews') ? 'nav-tab-active' : ''}`}
-              >
-                <PenSquare className="w-3.5 h-3.5" />
-                Add Article
-              </Link>
+
+              {/* Mobile admin controls */}
+              {showAdminControls && (
+                <div className="flex flex-col gap-1 py-2 border-t border-border mt-1">
+                  <button
+                    onClick={() => { handleLiveToggle(); setMobileOpen(false); }}
+                    disabled={isLiveLoading}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                    style={{ color: 'oklch(0.45 0.22 25)' }}
+                  >
+                    {isLiveLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Radio className="w-4 h-4" />
+                    )}
+                    {isLive ? 'End Live' : 'Go Live'}
+                  </button>
+                  <Link
+                    to="/admin/reviews"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold"
+                    style={{ color: 'oklch(0.45 0.22 25)' }}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Movie Reviews
+                  </Link>
+                  <Link
+                    to="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold"
+                    style={{ color: 'oklch(0.45 0.22 25)' }}
+                  >
+                    <PenSquare className="w-4 h-4" />
+                    Add Article
+                  </Link>
+                </div>
+              )}
             </nav>
           )}
         </div>

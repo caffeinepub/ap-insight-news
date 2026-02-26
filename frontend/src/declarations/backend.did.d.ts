@@ -10,6 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface LiveStatus { 'startedAt' : [] | [Time], 'isLive' : boolean }
 export interface News {
   'id' : string,
   'title' : string,
@@ -60,6 +61,7 @@ export interface _SERVICE {
   'getAllReviews' : ActorMethod<[], Array<Review>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getLiveStatus' : ActorMethod<[], LiveStatus>,
   'getNewsByCategory' : ActorMethod<[NewsCategory], Array<News>>,
   'getNewsById' : ActorMethod<[string], News>,
   'getReviewsByArticleId' : ActorMethod<[string], Array<Review>>,
@@ -68,6 +70,7 @@ export interface _SERVICE {
   'isConnected' : ActorMethod<[], boolean>,
   'purgeExpiredArticles' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'toggleLiveStatus' : ActorMethod<[], LiveStatus>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

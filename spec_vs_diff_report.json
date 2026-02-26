@@ -1,22 +1,26 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T22:52:54.531Z",
-  "summary": "The diff implements both REQ-1 (backend sorting) and REQ-2 (frontend ordering). REQ-1 is fully addressed in backend/main.mo with a descending sort comparator applied in getAllNews() and getNewsByCategory(). REQ-2 is partially addressed: the frontend-file-summaries.txt confirms HomePage, PoliticalNewsPage, MovieNewsPage, TopStoriesSidebar, and BreakingNewsTicker all render in backend order. However, useQueries.ts introduces a client-side sortNewestFirst helper applied after fetching — this is redundant given the backend already sorts, but does not contradict the newest-first order. The key concern for REQ-2 AC is technically met since the client-side sort aligns with backend order rather than reversing it.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-26T03:54:21.799Z",
+  "summary": "The diff implements REQ-1 (timeout mechanism in ActorLoadingGuard with retry button) and REQ-2 (Go Live/End Live toggle in Header.tsx using useToggleLiveStatus). REQ-3 is partially addressed via the ActorLoadingGuard error/retry UI, but no dedicated error boundary component or explicit actor creation error catching is evident in the diff.",
+  "missing_requirements": [
     {
-      "description": "Client-side sortNewestFirst helper applied in useGetAllNews and useGetNewsByCategory after fetching from backend",
-      "reason": "REQ-2 explicitly requires that frontend pages render articles in the exact order returned by the backend without any client-side re-sorting. Adding a redundant client-side sort was not requested and the AC states no client-side sort should be applied that contradicts backend order, implying no additional sorting logic should be introduced.",
+      "id": "REQ-3",
+      "requirement": "Audit and fix the useActor hook and actor initialization flow to ensure anonymous and authenticated actor instances are created without errors. Add error boundary handling so any actor creation failure surfaces a user-readable message rather than a silent infinite load.",
+      "reason": "No React ErrorBoundary component or explicit try/catch around actor creation is added in the diff. The ActorLoadingGuard covers the timeout/retry UI but does not constitute a proper error boundary that catches actor creation exceptions. No new ErrorBoundary class component or wrapper that catches thrown errors from actor initialization is present.",
       "evidence": [
+        "frontend/src/components/ActorLoadingGuard.tsx",
         "frontend/src/hooks/useQueries.ts"
       ]
     }
   ],
-  "confidence": 0.78,
+  "hallucinated_features": [],
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/components/ActorLoadingGuard.tsx",
+    "frontend/src/components/Header.tsx",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
