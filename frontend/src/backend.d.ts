@@ -7,7 +7,29 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface Review {
+    id: bigint;
+    createdAt: Time;
+    reviewText: string;
+    reviewerName: string;
+    articleId: string;
+    rating: bigint;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
 export type Time = bigint;
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
 export interface LiveStatus {
     startedAt?: Time;
     isLive: boolean;
@@ -19,21 +41,27 @@ export interface News {
     imageData?: string;
     fullContent: string;
     createdAt: Time;
+    sourceUrl: string;
     author: string;
     summary: string;
     publicationDate: string;
     category: NewsCategory;
 }
+export interface NewsItemDTO {
+    title: string;
+    content: string;
+    sourceUrl: string;
+    author: string;
+    summary: string;
+    publicationDate: string;
+    category: string;
+}
 export interface UserProfile {
     name: string;
 }
-export interface Review {
-    id: bigint;
-    createdAt: Time;
-    reviewText: string;
-    reviewerName: string;
-    articleId: string;
-    rating: bigint;
+export interface http_header {
+    value: string;
+    name: string;
 }
 export enum NewsCategory {
     movie = "movie",
@@ -45,11 +73,14 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageData: string | null): Promise<void>;
+    addBulkNews(newsItems: Array<NewsItemDTO>): Promise<void>;
+    addNews(id: string, title: string, summary: string, fullContent: string, category: NewsCategory, author: string, publicationDate: string, imageData: string | null, sourceUrl: string): Promise<void>;
     addReview(articleId: string, reviewerName: string, rating: bigint, reviewText: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteNews(id: string): Promise<void>;
     deleteReview(id: bigint): Promise<void>;
+    fetchAndReloadAllNews(): Promise<void>;
+    fetchSpecificSource(sourceName: string): Promise<string>;
     getAllNews(): Promise<Array<News>>;
     getAllReviews(): Promise<Array<Review>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -65,4 +96,5 @@ export interface backendInterface {
     purgeExpiredArticles(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     toggleLiveStatus(): Promise<LiveStatus>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
 }

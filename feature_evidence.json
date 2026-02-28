@@ -2,14 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-frontend-ensure-all-article-listing-pages-homepage-politicalnewspage-movienewspage-and-sidebar-components-topstoriessidebar-breakingnewsticker-display-articles-in-descending-date-order-latest-first-if-client-side-sorting-is-needed-to-complement-the-backend-change-apply-a-sort-by-date-descending-before-rendering",
-      "featureTitle": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
+      "featureId": "feature-update-the-admin-dashboard-adminpage-tsx-to-support-triggering-auto-fetch-from-all-three-sources-eenadu-sakshi-and-andhra-jyothy-either-individually-via-per-source-buttons-or-collectively-via-a-single-fetch-all-sources-button-display-the-fetch-status-and-result-count-articles-added-for-each-source-after-execution",
+      "featureTitle": "Update the Admin dashboard (AdminPage.tsx) to support triggering auto-fetch from all three sources — Eenadu, Sakshi, and Andhra Jyothy — either individually via per-source buttons or collectively via a single 'Fetch All Sources' button. Display the fetch status and result count (articles added) for each source after execution.",
       "files": [
-        "frontend/src/components/BreakingNewsTicker.tsx",
-        "frontend/src/components/TopStoriesSidebar.tsx",
-        "frontend/src/pages/HomePage.tsx",
-        "frontend/src/pages/MovieNewsPage.tsx",
-        "frontend/src/pages/PoliticalNewsPage.tsx"
+        "frontend/src/pages/AdminPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,10 +13,31 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-usequeries-ts-react-query-hooks-to-include-mutation-or-query-hooks-for-the-new-multi-source-auto-fetch-backend-function-s-ensuring-cache-invalidation-for-the-news-article-list-after-successful-ingestion",
+      "featureTitle": "Update the useQueries.ts React Query hooks to include mutation or query hooks for the new multi-source auto-fetch backend function(s), ensuring cache invalidation for the news article list after successful ingestion.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

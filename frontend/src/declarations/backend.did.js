@@ -8,6 +8,15 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const NewsItemDTO = IDL.Record({
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'sourceUrl' : IDL.Text,
+  'author' : IDL.Text,
+  'summary' : IDL.Text,
+  'publicationDate' : IDL.Text,
+  'category' : IDL.Text,
+});
 export const NewsCategory = IDL.Variant({
   'movie' : IDL.Null,
   'political' : IDL.Null,
@@ -25,6 +34,7 @@ export const News = IDL.Record({
   'imageData' : IDL.Opt(IDL.Text),
   'fullContent' : IDL.Text,
   'createdAt' : Time,
+  'sourceUrl' : IDL.Text,
   'author' : IDL.Text,
   'summary' : IDL.Text,
   'publicationDate' : IDL.Text,
@@ -43,9 +53,28 @@ export const LiveStatus = IDL.Record({
   'startedAt' : IDL.Opt(Time),
   'isLive' : IDL.Bool,
 });
+export const http_header = IDL.Record({
+  'value' : IDL.Text,
+  'name' : IDL.Text,
+});
+export const http_request_result = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
+export const TransformationInput = IDL.Record({
+  'context' : IDL.Vec(IDL.Nat8),
+  'response' : http_request_result,
+});
+export const TransformationOutput = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addBulkNews' : IDL.Func([IDL.Vec(NewsItemDTO)], [], []),
   'addNews' : IDL.Func(
       [
         IDL.Text,
@@ -56,6 +85,7 @@ export const idlService = IDL.Service({
         IDL.Text,
         IDL.Text,
         IDL.Opt(IDL.Text),
+        IDL.Text,
       ],
       [],
       [],
@@ -68,6 +98,8 @@ export const idlService = IDL.Service({
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteNews' : IDL.Func([IDL.Text], [], []),
   'deleteReview' : IDL.Func([IDL.Nat], [], []),
+  'fetchAndReloadAllNews' : IDL.Func([], [], []),
+  'fetchSpecificSource' : IDL.Func([IDL.Text], [IDL.Text], []),
   'getAllNews' : IDL.Func([], [IDL.Vec(News)], ['query']),
   'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -87,11 +119,25 @@ export const idlService = IDL.Service({
   'purgeExpiredArticles' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'toggleLiveStatus' : IDL.Func([], [LiveStatus], []),
+  'transform' : IDL.Func(
+      [TransformationInput],
+      [TransformationOutput],
+      ['query'],
+    ),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const NewsItemDTO = IDL.Record({
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'sourceUrl' : IDL.Text,
+    'author' : IDL.Text,
+    'summary' : IDL.Text,
+    'publicationDate' : IDL.Text,
+    'category' : IDL.Text,
+  });
   const NewsCategory = IDL.Variant({
     'movie' : IDL.Null,
     'political' : IDL.Null,
@@ -109,6 +155,7 @@ export const idlFactory = ({ IDL }) => {
     'imageData' : IDL.Opt(IDL.Text),
     'fullContent' : IDL.Text,
     'createdAt' : Time,
+    'sourceUrl' : IDL.Text,
     'author' : IDL.Text,
     'summary' : IDL.Text,
     'publicationDate' : IDL.Text,
@@ -127,9 +174,25 @@ export const idlFactory = ({ IDL }) => {
     'startedAt' : IDL.Opt(Time),
     'isLive' : IDL.Bool,
   });
+  const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const http_request_result = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
+  const TransformationInput = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : http_request_result,
+  });
+  const TransformationOutput = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addBulkNews' : IDL.Func([IDL.Vec(NewsItemDTO)], [], []),
     'addNews' : IDL.Func(
         [
           IDL.Text,
@@ -140,6 +203,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
           IDL.Text,
           IDL.Opt(IDL.Text),
+          IDL.Text,
         ],
         [],
         [],
@@ -152,6 +216,8 @@ export const idlFactory = ({ IDL }) => {
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteNews' : IDL.Func([IDL.Text], [], []),
     'deleteReview' : IDL.Func([IDL.Nat], [], []),
+    'fetchAndReloadAllNews' : IDL.Func([], [], []),
+    'fetchSpecificSource' : IDL.Func([IDL.Text], [IDL.Text], []),
     'getAllNews' : IDL.Func([], [IDL.Vec(News)], ['query']),
     'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -175,6 +241,11 @@ export const idlFactory = ({ IDL }) => {
     'purgeExpiredArticles' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'toggleLiveStatus' : IDL.Func([], [LiveStatus], []),
+    'transform' : IDL.Func(
+        [TransformationInput],
+        [TransformationOutput],
+        ['query'],
+      ),
   });
 };
 

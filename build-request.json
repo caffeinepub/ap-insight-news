@@ -1,54 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Sort articles in descending order by date (latest first)",
+  "title": "Automate news ingestion from Eenadu, Sakshi, and Andhra Jyothy",
   "projectName": "AP Insight News",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+      "text": "Extend the backend auto-fetch HTTP outcall logic to fetch and parse articles from https://www.eenadu.net/, https://www.sakshi.com/, and https://www.andhrajyothy.com/ — attempt RSS feed endpoints (e.g., /rss, /feed, /rss.xml) for each domain. For each source, extract article title, summary, URL, category, author, and publication date, then store them as News records, deduplicating by URL so re-fetching does not create duplicates.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-6"
         ],
         "quotes": [
-          "Please arrange the articles in dicending order in date.example latest date articles showing firts."
+          "Please automata to add articles from https://www.eenadu.net/,https://www.sakshi.com/,https://www.andhrajyothy.com/ and add into our website."
         ]
       },
       "acceptanceCriteria": [
-        "The backend function returning all articles returns them sorted by date descending.",
-        "The most recently dated article appears at index 0 of the returned array."
+        "Backend actor exposes a function (or extends the existing autoFetchNews function) that fetches from all three sources: eenadu.net, sakshi.com, and andhrajyothy.com.",
+        "Articles fetched from each source are stored as News records with correct title, summary, sourceUrl, category, and date fields.",
+        "Duplicate articles (same URL) are not inserted more than once regardless of how many times the fetch is triggered.",
+        "Fetch failures from one source do not prevent successful ingestion from the other sources."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
+      "text": "Update the Admin dashboard (AdminPage.tsx) to support triggering auto-fetch from all three sources — Eenadu, Sakshi, and Andhra Jyothy — either individually via per-source buttons or collectively via a single 'Fetch All Sources' button. Display the fetch status and result count (articles added) for each source after execution.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-6"
         ],
         "quotes": [
-          "Please arrange the articles in dicending order in date.example latest date articles showing firts."
+          "Please automata to add articles from https://www.eenadu.net/,https://www.sakshi.com/,https://www.andhrajyothy.com/ and add into our website."
         ]
       },
       "acceptanceCriteria": [
-        "On the Home page, the hero and secondary story articles reflect the latest articles first.",
-        "On the Political News and Movie News pages, articles are listed from newest to oldest.",
-        "The Top Stories sidebar and Breaking News ticker display the most recent articles first.",
-        "No article with an older date appears before an article with a newer date in any list view."
+        "Admin page shows controls to trigger news fetch from Eenadu, Sakshi, and Andhra Jyothy (individually or as a group).",
+        "After fetching, the UI displays how many new articles were added per source.",
+        "Loading states are shown while a fetch is in progress.",
+        "Error messages are displayed per source if the fetch fails."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update the useQueries.ts React Query hooks to include mutation or query hooks for the new multi-source auto-fetch backend function(s), ensuring cache invalidation for the news article list after successful ingestion.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A hook exists in useQueries.ts for triggering multi-source fetch (eenadu, sakshi, andhrajyothy).",
+        "On successful fetch, the news article list query cache is invalidated so the UI reflects newly added articles without a manual page refresh."
       ]
     }
   ],
   "constraints": [
-    "Do not change the article data model or schema.",
-    "Do not modify files listed in frontend.immutablePaths."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "All backend logic must remain in the single actor in backend/main.mo.",
+    "Deduplication by article URL must be enforced in the backend to prevent duplicate entries on repeated fetches."
   ],
   "nonGoals": [
-    "Adding user-facing sort controls or filters.",
-    "Changing pagination behavior beyond sort order.",
-    "Modifying article detail page layout."
+    "Real-time or webhook-based article ingestion — polling/manual trigger only.",
+    "Scraping full article body HTML from source websites.",
+    "Any changes to article display layout or card components."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,58 +1,59 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T04:49:11.420Z",
+  "generatedAt": "2026-02-28T06:54:14.008Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+        "summary": "Extend the backend auto-fetch HTTP outcall logic to fetch and parse articles from https://www.eenadu.net/, https://www.sakshi.com/, and https://www.andhrajyothy.com/ — attempt RSS feed endpoints (e.g., /rss, /feed, /rss.xml) for each domain. For each source, extract article title, summary, URL, category, author, and publication date, then store them as News records, deduplicating by URL so re-fetching does not create duplicates.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
+        "summary": "Update the Admin dashboard (AdminPage.tsx) to support triggering auto-fetch from all three sources — Eenadu, Sakshi, and Andhra Jyothy — either individually via per-source buttons or collectively via a single 'Fetch All Sources' button. Display the fetch status and result count (articles added) for each source after execution.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/PoliticalNewsPage.tsx",
-          "frontend/src/pages/MovieNewsPage.tsx",
-          "frontend/src/components/TopStoriesSidebar.tsx",
-          "frontend/src/components/BreakingNewsTicker.tsx"
+          "frontend/src/pages/AdminPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/pages/PoliticalNewsPage.tsx",
-          "frontend/src/pages/MovieNewsPage.tsx",
-          "frontend/src/components/TopStoriesSidebar.tsx",
-          "frontend/src/components/BreakingNewsTicker.tsx"
+          "frontend/src/pages/AdminPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Update the useQueries.ts React Query hooks to include mutation or query hooks for the new multi-source auto-fetch backend function(s), ensuring cache invalidation for the news article list after successful ingestion.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/BreakingNewsTicker.tsx",
-    "frontend/src/components/TopStoriesSidebar.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/MovieNewsPage.tsx",
-    "frontend/src/pages/PoliticalNewsPage.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

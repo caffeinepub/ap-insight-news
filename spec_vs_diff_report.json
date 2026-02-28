@@ -1,19 +1,34 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T04:49:11.417Z",
-  "summary": "Both REQ-1 and REQ-2 are fully implemented. The backend sorts articles by createdAt descending in getAllNews(), and all required frontend pages and sidebar components apply client-side sortByDateDesc sorting before rendering.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.97,
+  "generatedAt": "2026-02-28T06:54:14.005Z",
+  "summary": "The diff implements all three requirements with reasonable coverage. REQ-1 backend logic (backend/main.mo, migration.mo) adds processedUrls deduplication set, NewsSource type, and migration support. REQ-2 AdminPage.tsx adds per-source and fetch-all controls with loading/error/success states. REQ-3 useQueries.ts adds useFetchSpecificSource and useAutoFetchNews hooks with cache invalidation. However, the backend/main.mo is truncated so full verification of RSS parsing for all three sources and isolation of fetch failures is incomplete.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Attempt RSS feed endpoints (e.g., /rss, /feed, /rss.xml) for each domain and extract article title, summary, URL, category, author, and publication date. Fetch failures from one source do not prevent successful ingestion from the other sources.",
+      "reason": "The backend/main.mo diff is truncated before the actual HTTP outcall and RSS parsing implementation for eenadu.net, sakshi.com, and andhrajyothy.com can be confirmed. We cannot verify that RSS endpoints are attempted, that all required fields are extracted per article, or that per-source failure isolation is implemented.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "A migration module (backend/migration.mo) was added to handle schema upgrades from OldActor to NewActor, including migrating the news map to add sourceUrl and initializing processedUrls and newsSources.",
+      "reason": "The build request does not mention any migration requirement or schema versioning logic. This is an implementation addition not requested in any REQ.",
+      "evidence": [
+        "backend/migration.mo"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/BreakingNewsTicker.tsx",
-    "frontend/src/components/TopStoriesSidebar.tsx",
-    "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/MovieNewsPage.tsx",
-    "frontend/src/pages/PoliticalNewsPage.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json"
   ]
 }

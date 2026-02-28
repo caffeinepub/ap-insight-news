@@ -71,6 +71,7 @@ export function useAddNews() {
       author: string;
       publicationDate: string;
       imageUrl: string | null;
+      sourceUrl: string;
     }) => {
       if (!actor || actorFetching) {
         throw new Error('Backend connection not ready. Please wait a moment and try again.');
@@ -83,7 +84,8 @@ export function useAddNews() {
         params.category,
         params.author,
         params.publicationDate,
-        params.imageUrl
+        params.imageUrl,
+        params.sourceUrl
       );
     },
     onSuccess: () => {
@@ -119,6 +121,41 @@ export function usePurgeExpiredArticles() {
         throw new Error('Backend connection not ready. Please wait a moment and try again.');
       }
       await actor.purgeExpiredArticles();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+    },
+  });
+}
+
+export function useAutoFetchNews() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
+      await actor.fetchAndReloadAllNews();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news'] });
+    },
+  });
+}
+
+export function useFetchSpecificSource() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (sourceName: string) => {
+      if (!actor || actorFetching) {
+        throw new Error('Backend connection not ready. Please wait a moment and try again.');
+      }
+      const result = await actor.fetchSpecificSource(sourceName);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
@@ -237,17 +274,13 @@ export function useIsCallerAdmin() {
     },
     enabled: !!actor && !actorFetching,
     retry: false,
-    // Don't cache stale admin status — always re-check when actor changes
     staleTime: 0,
   });
 
   return {
     ...query,
-    // isLoading is true while actor is initializing OR while the query is running
     isLoading: actorFetching || query.isLoading,
-    // isFetched is only true once we have a real actor and the query completed
     isFetched: !!actor && !actorFetching && query.isFetched,
-    // data defaults to false if not yet fetched
     data: query.data ?? false,
   };
 }

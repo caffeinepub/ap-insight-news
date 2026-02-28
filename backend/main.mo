@@ -5,11 +5,16 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
 import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Order "mo:core/Order";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import OutCall "http-outcalls/outcall";
+import Set "mo:core/Set";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type NewsCategory = {
     #political;
@@ -27,6 +32,7 @@ actor {
     imageData : ?Text;
     expiresAt : Time.Time;
     createdAt : Time.Time;
+    sourceUrl : Text;
   };
 
   public type Review = {
@@ -47,6 +53,22 @@ actor {
     startedAt : ?Time.Time;
   };
 
+  public type NewsItemDTO = {
+    title : Text;
+    summary : Text;
+    content : Text;
+    author : Text;
+    category : Text;
+    publicationDate : Text;
+    sourceUrl : Text;
+  };
+
+  public type NewsSource = {
+    name : Text;
+    baseUrl : Text;
+    feedUrl : Text;
+  };
+
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -58,6 +80,8 @@ actor {
     isLive = false;
     startedAt = null;
   };
+  let processedUrls = Set.empty<Text>();
+  let newsSources = Map.empty<Text, NewsSource>();
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -93,6 +117,7 @@ actor {
     author : Text,
     publicationDate : Text,
     imageData : ?Text,
+    sourceUrl : Text,
   ) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add news articles");
@@ -109,9 +134,47 @@ actor {
       imageData;
       expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000);
       createdAt = Time.now();
+      sourceUrl;
     };
 
     news.add(id, article);
+  };
+
+  public shared ({ caller }) func addBulkNews(newsItems : [NewsItemDTO]) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add news articles");
+    };
+
+    let newArticles = newsItems.map(func(item) { toArticle(item) });
+    let reverseNewArticles = newArticles.reverse();
+
+    for (item in reverseNewArticles.values()) {
+      news.add(item.id, item);
+    };
+  };
+
+  func toArticle(dto : NewsItemDTO) : News {
+    {
+      id = Time.now().toText();
+      title = dto.title;
+      summary = dto.summary;
+      fullContent = dto.content;
+      category = parseCategory(dto.category);
+      author = dto.author;
+      publicationDate = dto.publicationDate;
+      imageData = null;
+      expiresAt = Time.now() + (7 * 24 * 60 * 60 * 1000000000);
+      createdAt = Time.now();
+      sourceUrl = dto.sourceUrl;
+    };
+  };
+
+  func parseCategory(categoryStr : Text) : NewsCategory {
+    switch (categoryStr.toLower()) {
+      case ("political") { #political };
+      case ("movie") { #movie };
+      case (_) { #political };
+    };
   };
 
   public query func getNewsById(id : Text) : async News {
@@ -288,5 +351,78 @@ actor {
 
   public query func getLiveStatus() : async LiveStatus {
     liveStatus;
+  };
+
+  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    OutCall.transform(input);
+  };
+
+  func initializeNewsSources() {
+    let sources = [
+      {
+        name = "Eenadu";
+        baseUrl = "https://www.eenadu.net";
+        feedUrl = "https://www.eenadu.net/rss";
+      },
+      {
+        name = "Sakshi";
+        baseUrl = "https://www.sakshi.com";
+        feedUrl = "https://www.sakshi.com/rss";
+      },
+      {
+        name = "Andhra Jyothy";
+        baseUrl = "https://www.andhrajyothy.com";
+        feedUrl = "https://www.andhrajyothy.com/rss";
+      },
+      {
+        name = "Eenadu RSS";
+        baseUrl = "https://www.eenadu.net";
+        feedUrl = "https://www.eenadu.net/rss.xml";
+      },
+      {
+        name = "Sakshi Atom";
+        baseUrl = "https://www.sakshi.com";
+        feedUrl = "https://www.sakshi.com/feed/atom";
+      },
+    ];
+
+    for (source in sources.values()) {
+      newsSources.add(source.name, source);
+    };
+  };
+
+  public shared ({ caller }) func fetchAndReloadAllNews() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can reload content");
+    };
+
+    initializeNewsSources();
+
+    for ((sourceName, source) in newsSources.toArray().values()) {
+      let fetchedContent = await fetchNewsFromSource(source);
+      ignore fetchedContent;
+    };
+  };
+
+  public shared ({ caller }) func fetchSpecificSource(sourceName : Text) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can fetch specific source content");
+    };
+
+    switch (newsSources.get(sourceName)) {
+      case (null) { Runtime.trap("Source not found") };
+      case (?source) {
+        await fetchNewsFromSource(source);
+      };
+    };
+  };
+
+  func fetchNewsFromSource(source : NewsSource) : async Text {
+    if (processedUrls.contains(source.feedUrl)) {
+      Runtime.trap("URL already processed, skipping fetch");
+    };
+
+    processedUrls.add(source.feedUrl);
+    await OutCall.httpGetRequest(source.feedUrl, [], transform);
   };
 };

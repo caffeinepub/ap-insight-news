@@ -18,6 +18,7 @@ export interface News {
   'imageData' : [] | [string],
   'fullContent' : string,
   'createdAt' : Time,
+  'sourceUrl' : string,
   'author' : string,
   'summary' : string,
   'publicationDate' : string,
@@ -25,6 +26,15 @@ export interface News {
 }
 export type NewsCategory = { 'movie' : null } |
   { 'political' : null };
+export interface NewsItemDTO {
+  'title' : string,
+  'content' : string,
+  'sourceUrl' : string,
+  'author' : string,
+  'summary' : string,
+  'publicationDate' : string,
+  'category' : string,
+}
 export interface Review {
   'id' : bigint,
   'createdAt' : Time,
@@ -34,12 +44,28 @@ export interface Review {
   'rating' : bigint,
 }
 export type Time = bigint;
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addBulkNews' : ActorMethod<[Array<NewsItemDTO>], undefined>,
   'addNews' : ActorMethod<
     [
       string,
@@ -50,6 +76,7 @@ export interface _SERVICE {
       string,
       string,
       [] | [string],
+      string,
     ],
     undefined
   >,
@@ -57,6 +84,8 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteNews' : ActorMethod<[string], undefined>,
   'deleteReview' : ActorMethod<[bigint], undefined>,
+  'fetchAndReloadAllNews' : ActorMethod<[], undefined>,
+  'fetchSpecificSource' : ActorMethod<[string], string>,
   'getAllNews' : ActorMethod<[], Array<News>>,
   'getAllReviews' : ActorMethod<[], Array<Review>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -72,6 +101,7 @@ export interface _SERVICE {
   'purgeExpiredArticles' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'toggleLiveStatus' : ActorMethod<[], LiveStatus>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

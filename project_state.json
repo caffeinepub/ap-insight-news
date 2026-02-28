@@ -1,16 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project involves an articles/content platform. User wants articles sorted by date in descending order (latest first).",
-  "architectural_notes": [],
+  "summary": "News aggregation website that automatically fetches and displays articles from Telugu news sources.",
+  "architectural_notes": [
+    "Auto-aggregation of articles from Telugu news sources: eenadu.net, sakshi.com, andhrajyothy.com"
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-in-the-frontend-ensure-all-article-listing-pages-homepage-politicalnewspage-movienewspage-and-sidebar-components-topstoriessidebar-breakingnewsticker-display-articles-in-descending-date-order-latest-first-if-client-side-sorting-is-needed-to-complement-the-backend-change-apply-a-sort-by-date-descending-before-rendering",
-      "title": "In the frontend, ensure all article listing pages (HomePage, PoliticalNewsPage, MovieNewsPage) and sidebar components (TopStoriesSidebar, BreakingNewsTicker) display articles in descending date order (latest first). If client-side sorting is needed to complement the backend change, apply a sort by date descending before rendering.",
+      "id": "feature-update-the-admin-dashboard-adminpage-tsx-to-support-triggering-auto-fetch-from-all-three-sources-eenadu-sakshi-and-andhra-jyothy-either-individually-via-per-source-buttons-or-collectively-via-a-single-fetch-all-sources-button-display-the-fetch-status-and-result-count-articles-added-for-each-source-after-execution",
+      "title": "Update the Admin dashboard (AdminPage.tsx) to support triggering auto-fetch from all three sources — Eenadu, Sakshi, and Andhra Jyothy — either individually via per-source buttons or collectively via a single 'Fetch All Sources' button. Display the fetch status and result count (articles added) for each source after execution.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-usequeries-ts-react-query-hooks-to-include-mutation-or-query-hooks-for-the-new-multi-source-auto-fetch-backend-function-s-ensuring-cache-invalidation-for-the-news-article-list-after-successful-ingestion",
+      "title": "Update the useQueries.ts React Query hooks to include mutation or query hooks for the new multi-source auto-fetch backend function(s), ensuring cache invalidation for the news article list after successful ingestion.",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
@@ -18,13 +28,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Sort articles in descending order by date (latest articles shown first)",
+      "summary": "Automate fetching and adding articles from eenadu.net, sakshi.com, and andhrajyothy.com into the website",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "In the backend, update the query that returns all news articles so that results are sorted by date in descending order (newest articles first).",
+      "summary": "Extend the backend auto-fetch HTTP outcall logic to fetch and parse articles from https://www.eenadu.net/, https://www.sakshi.com/, and https://www.andhrajyothy.com/ — attempt RSS feed endpoints (e.g., /rss, /feed, /rss.xml) for each domain. For each source, extract article title, summary, URL, category, author, and publication date, then store them as News records, deduplicating by URL so re-fetching does not create duplicates.",
       "reqIds": [
         "REQ-1"
       ],

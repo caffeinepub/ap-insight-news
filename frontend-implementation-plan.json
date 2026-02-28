@@ -1,42 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Sort articles in descending order by date (latest first)",
+  "title": "Automate news ingestion from Eenadu, Sakshi, and Andhra Jyothy",
   "requirements": [
     {
       "id": "REQ-2",
-      "summary": "Ensure all frontend article listing pages and components display articles sorted by date in descending order (newest first)",
+      "summary": "Update the Admin dashboard to support triggering auto-fetch from all three Telugu news sources (Eenadu, Sakshi, Andhra Jyothy) with per-source controls and fetch status display",
       "acceptanceCriteria": [
-        "On the Home page, the hero and secondary story articles reflect the latest articles first.",
-        "On the Political News and Movie News pages, articles are listed from newest to oldest.",
-        "The Top Stories sidebar and Breaking News ticker display the most recent articles first.",
-        "No article with an older date appears before an article with a newer date in any list view."
+        "Admin page shows controls to trigger news fetch from Eenadu, Sakshi, and Andhra Jyothy (individually or as a group).",
+        "After fetching, the UI displays how many new articles were added per source.",
+        "Loading states are shown while a fetch is in progress.",
+        "Error messages are displayed per source if the fetch fails."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
+          "path": "frontend/src/pages/AdminPage.tsx",
           "operation": "modify",
-          "description": "Apply client-side descending date sort to articles before selecting hero, secondary stories, and category sections to ensure the latest articles appear first."
-        },
+          "description": "Add a new section for automated news ingestion with three individual source buttons (Eenadu, Sakshi, Andhra Jyothy) and one 'Fetch All Sources' button. Wire these buttons to call the backend fetchSpecificSource function with source names 'eenadu', 'sakshi', and 'andhrajyothy'. Display loading spinners during fetch operations and show success/error toast notifications with article count results per source. Position this section above the existing manual article creation form for admin visibility. Use the authorization component's admin guards to ensure only admins can trigger these operations."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add React Query hooks for multi-source news auto-fetch operations with proper cache invalidation",
+      "acceptanceCriteria": [
+        "A hook exists in useQueries.ts for triggering multi-source fetch (eenadu, sakshi, andhrajyothy).",
+        "On successful fetch, the news article list query cache is invalidated so the UI reflects newly added articles without a manual page refresh."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/pages/PoliticalNewsPage.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Apply client-side descending date sort to political news articles before rendering the paginated list to ensure newest articles appear first."
-        },
-        {
-          "path": "frontend/src/pages/MovieNewsPage.tsx",
-          "operation": "modify",
-          "description": "Apply client-side descending date sort to movie news articles before rendering the paginated list to ensure newest articles appear first."
-        },
-        {
-          "path": "frontend/src/components/TopStoriesSidebar.tsx",
-          "operation": "modify",
-          "description": "Apply client-side descending date sort to articles before selecting the top 5 to display in the sidebar, ensuring the most recent articles are shown."
-        },
-        {
-          "path": "frontend/src/components/BreakingNewsTicker.tsx",
-          "operation": "modify",
-          "description": "Apply client-side descending date sort to articles before selecting the latest 10 titles for the ticker, ensuring breaking news shows the most recent articles first."
+          "description": "Add a new useFetchSpecificSource mutation hook that wraps the backend fetchSpecificSource function. The hook should accept a sourceName parameter ('eenadu', 'sakshi', or 'andhrajyothy'), call actor.fetchSpecificSource(sourceName), and on success invalidate the 'news' query key to refresh all news lists. Add error handling to surface backend fetch failures to the UI. This hook will be used by AdminPage.tsx to trigger individual source fetches and display results."
         }
       ]
     }

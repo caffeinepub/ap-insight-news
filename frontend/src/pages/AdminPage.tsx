@@ -7,6 +7,8 @@ import {
   useAddNews,
   useDeleteNews,
   usePurgeExpiredArticles,
+  useAutoFetchNews,
+  useFetchSpecificSource,
 } from '../hooks/useQueries';
 import { NewsCategory } from '../backend';
 import { Button } from '@/components/ui/button';
@@ -25,7 +27,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Plus, Loader2, AlertCircle, Clock, Newspaper, Star, Upload, X, ImageIcon } from 'lucide-react';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
+import {
+  Trash2,
+  Plus,
+  Loader2,
+  AlertCircle,
+  Clock,
+  Star,
+  Upload,
+  X,
+  ImageIcon,
+  RefreshCw,
+  Globe,
+  Zap,
+} from 'lucide-react';
 
 function formatExpiry(expiresAt: bigint): string {
   const ms = Number(expiresAt) / 1_000_000;
@@ -50,6 +67,7 @@ interface ArticleFormData {
   author: string;
   publicationDate: string;
   imageData: string;
+  sourceUrl: string;
 }
 
 const emptyForm: ArticleFormData = {
@@ -60,7 +78,37 @@ const emptyForm: ArticleFormData = {
   author: '',
   publicationDate: new Date().toISOString().split('T')[0],
   imageData: '',
+  sourceUrl: '',
 };
+
+interface NewsSource {
+  key: string;
+  label: string;
+  url: string;
+}
+
+const NEWS_SOURCES: NewsSource[] = [
+  {
+    key: 'Eenadu',
+    label: 'Eenadu',
+    url: 'https://www.eenadu.net',
+  },
+  {
+    key: 'Sakshi',
+    label: 'Sakshi',
+    url: 'https://www.sakshi.com',
+  },
+  {
+    key: 'Andhra Jyothy',
+    label: 'Andhra Jyothy',
+    url: 'https://www.andhrajyothy.com',
+  },
+];
+
+interface SourceFetchState {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  message: string;
+}
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -74,10 +122,16 @@ export default function AdminPage() {
   const [imageFileName, setImageFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Per-source fetch state
+  const [sourceStates, setSourceStates] = useState<Record<string, SourceFetchState>>({});
+  const [fetchAllLoading, setFetchAllLoading] = useState(false);
+
   const { data: articles = [], isLoading: articlesLoading } = useGetAllNews();
   const addNewsMutation = useAddNews();
   const deleteNewsMutation = useDeleteNews();
   const purgeExpiredMutation = usePurgeExpiredArticles();
+  const autoFetchMutation = useAutoFetchNews();
+  const fetchSpecificSourceMutation = useFetchSpecificSource();
 
   const isAuthenticated = !!identity;
 
@@ -169,6 +223,7 @@ export default function AdminPage() {
         author: form.author.trim(),
         publicationDate: form.publicationDate.trim(),
         imageUrl: form.imageData || null,
+        sourceUrl: form.sourceUrl.trim(),
       });
       setForm(emptyForm);
       setImagePreview(null);
@@ -205,6 +260,68 @@ export default function AdminPage() {
     }
   };
 
+  const setSourceState = (key: string, state: SourceFetchState) => {
+    setSourceStates((prev) => ({ ...prev, [key]: state }));
+  };
+
+  const handleFetchSource = async (source: NewsSource) => {
+    setSourceState(source.key, { status: 'loading', message: '' });
+    try {
+      const result = await fetchSpecificSourceMutation.mutateAsync(source.key);
+      const msg = result
+        ? `Fetched successfully from ${source.label}.`
+        : `Fetch complete for ${source.label}.`;
+      setSourceState(source.key, { status: 'success', message: msg });
+      toast.success(`${source.label}: ${msg}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      let displayMsg = `Failed to fetch from ${source.label}.`;
+      if (message.includes('Unauthorized') || message.includes('admin')) {
+        displayMsg = 'You do not have admin permissions to fetch news.';
+      } else if (message.includes('already processed')) {
+        displayMsg = `${source.label} was already fetched recently. No new articles added.`;
+        setSourceState(source.key, { status: 'success', message: displayMsg });
+        toast.info(displayMsg);
+        return;
+      } else {
+        displayMsg = `${source.label}: ${message}`;
+      }
+      setSourceState(source.key, { status: 'error', message: displayMsg });
+      toast.error(displayMsg);
+    }
+  };
+
+  const handleFetchAllSources = async () => {
+    setFetchAllLoading(true);
+    const resetStates: Record<string, SourceFetchState> = {};
+    NEWS_SOURCES.forEach((s) => {
+      resetStates[s.key] = { status: 'loading', message: '' };
+    });
+    setSourceStates(resetStates);
+
+    try {
+      await autoFetchMutation.mutateAsync();
+      NEWS_SOURCES.forEach((s) => {
+        setSourceState(s.key, { status: 'success', message: `Fetched from ${s.label}.` });
+      });
+      toast.success('All sources fetched successfully! Article list has been refreshed.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      let displayMsg = 'Failed to fetch all sources.';
+      if (message.includes('Unauthorized') || message.includes('admin')) {
+        displayMsg = 'You do not have admin permissions to fetch news.';
+      } else {
+        displayMsg = `Fetch all failed: ${message}`;
+      }
+      NEWS_SOURCES.forEach((s) => {
+        setSourceState(s.key, { status: 'error', message: displayMsg });
+      });
+      toast.error(displayMsg);
+    } finally {
+      setFetchAllLoading(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
@@ -220,222 +337,275 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage articles and content</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate({ to: '/admin/reviews' })}
-          className="flex items-center gap-2"
-        >
-          <Star className="w-4 h-4" />
-          Manage Reviews
-        </Button>
+      <Toaster />
+
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-1">Admin Dashboard</h1>
+        <p className="text-muted-foreground">Manage news articles, reviews, and site settings.</p>
       </div>
 
-      {/* Add New Article Form */}
-      <section className="bg-card border border-border rounded-lg p-6 mb-8">
-        <div className="flex items-center gap-2 mb-6">
-          <Plus className="w-5 h-5 text-accent" />
-          <h2 className="text-xl font-bold text-foreground">Add New Article</h2>
+      {/* ── Telugu News Auto-Fetch Section ── */}
+      <section className="mb-10 bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-accent px-6 py-4 flex items-center gap-3">
+          <Zap className="w-5 h-5 text-white" />
+          <h2 className="text-lg font-bold text-white">Automated News Ingestion</h2>
         </div>
+        <div className="px-6 py-5">
+          <p className="text-sm text-muted-foreground mb-5">
+            Fetch the latest Telugu news articles directly from Eenadu, Sakshi, and Andhra Jyothy.
+            Use individual source buttons or fetch from all sources at once.
+          </p>
 
-        <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-md text-sm text-muted-foreground">
-          <Clock className="w-4 h-4 flex-shrink-0" />
-          <span>Articles automatically expire after <strong>7 days</strong> from publication.</span>
+          {/* Individual source cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            {NEWS_SOURCES.map((source) => {
+              const state = sourceStates[source.key];
+              const isLoading = state?.status === 'loading';
+              return (
+                <div
+                  key={source.key}
+                  className="border border-border rounded-lg p-4 flex flex-col gap-3 bg-muted/30"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-accent" />
+                      <span className="font-semibold text-foreground text-sm">{source.label}</span>
+                    </div>
+                    {state?.status === 'success' && (
+                      <span className="text-xs text-green-600 font-medium">✓ Done</span>
+                    )}
+                    {state?.status === 'error' && (
+                      <span className="text-xs text-destructive font-medium">✗ Error</span>
+                    )}
+                  </div>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground hover:text-accent truncate"
+                  >
+                    {source.url}
+                  </a>
+                  {state?.message && (
+                    <p
+                      className={`text-xs rounded px-2 py-1 ${
+                        state.status === 'success'
+                          ? 'bg-green-50 text-green-700'
+                          : state.status === 'error'
+                            ? 'bg-red-50 text-destructive'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {state.message}
+                    </p>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleFetchSource(source)}
+                    disabled={isLoading || fetchAllLoading}
+                    className="w-full mt-auto"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                        Fetching…
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3 h-3 mr-1.5" />
+                        Fetch {source.label}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Fetch All button */}
+          <div className="flex items-center gap-3 pt-2 border-t border-border">
+            <Button
+              onClick={handleFetchAllSources}
+              disabled={fetchAllLoading || autoFetchMutation.isPending}
+              className="bg-accent hover:bg-accent/90 text-white"
+            >
+              {fetchAllLoading || autoFetchMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Fetching All Sources…
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Fetch All Sources
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Fetches from Eenadu, Sakshi, and Andhra Jyothy simultaneously.
+            </p>
+          </div>
         </div>
+      </section>
 
-        {formError && (
-          <div className="flex items-start gap-2 mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-md text-sm text-destructive">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <span>{formError}</span>
-          </div>
-        )}
+      {/* ── Add Article Form ── */}
+      <section className="mb-10 bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-foreground px-6 py-4 flex items-center gap-3">
+          <Plus className="w-5 h-5 text-white" />
+          <h2 className="text-lg font-bold text-white">Add New Article</h2>
+        </div>
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          {formError && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-destructive rounded px-3 py-2 text-sm">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+          {formSuccess && (
+            <div className="bg-green-50 border border-green-200 text-green-700 rounded px-3 py-2 text-sm">
+              {formSuccess}
+            </div>
+          )}
 
-        {formSuccess && (
-          <div className="flex items-start gap-2 mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
-            <span>✓ {formSuccess}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="title">Title <span className="text-destructive">*</span></Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
                 name="title"
                 value={form.title}
                 onChange={handleFormChange}
-                placeholder="Article headline"
-                disabled={addNewsMutation.isPending}
+                placeholder="Article title"
+                className="mt-1"
               />
             </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="author">Author <span className="text-destructive">*</span></Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="summary">Summary *</Label>
+              <Textarea
+                id="summary"
+                name="summary"
+                value={form.summary}
+                onChange={handleFormChange}
+                placeholder="Brief summary of the article"
+                rows={2}
+                className="mt-1"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="fullContent">Full Content *</Label>
+              <Textarea
+                id="fullContent"
+                name="fullContent"
+                value={form.fullContent}
+                onChange={handleFormChange}
+                placeholder="Full article content"
+                rows={5}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="author">Author *</Label>
               <Input
                 id="author"
                 name="author"
                 value={form.author}
                 onChange={handleFormChange}
                 placeholder="Author name"
-                disabled={addNewsMutation.isPending}
+                className="mt-1"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="category">Category <span className="text-destructive">*</span></Label>
-              <select
-                id="category"
-                name="category"
-                value={form.category === NewsCategory.movie ? 'movie' : 'political'}
-                onChange={handleCategoryChange}
-                disabled={addNewsMutation.isPending}
-                className="w-full h-10 px-3 py-2 text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50"
-              >
-                <option value="political">Political</option>
-                <option value="movie">Movie</option>
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="publicationDate">Publication Date <span className="text-destructive">*</span></Label>
+            <div>
+              <Label htmlFor="publicationDate">Publication Date *</Label>
               <Input
                 id="publicationDate"
                 name="publicationDate"
                 type="date"
                 value={form.publicationDate}
                 onChange={handleFormChange}
-                disabled={addNewsMutation.isPending}
+                className="mt-1"
               />
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="summary">Summary <span className="text-destructive">*</span></Label>
-            <Textarea
-              id="summary"
-              name="summary"
-              value={form.summary}
-              onChange={handleFormChange}
-              placeholder="Brief summary of the article (shown in listings)"
-              rows={2}
-              disabled={addNewsMutation.isPending}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="fullContent">Full Content <span className="text-destructive">*</span></Label>
-            <Textarea
-              id="fullContent"
-              name="fullContent"
-              value={form.fullContent}
-              onChange={handleFormChange}
-              placeholder="Full article content"
-              rows={6}
-              disabled={addNewsMutation.isPending}
-            />
-          </div>
-
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
-              Upload Image
-              <span className="text-muted-foreground text-xs font-normal">(optional)</span>
-            </Label>
-
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              id="imageUpload"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              onChange={handleFileChange}
-              disabled={addNewsMutation.isPending}
-              className="sr-only"
-              aria-label="Upload article image"
-            />
-
-            {imagePreview ? (
-              /* Preview area */
-              <div className="flex items-start gap-4 p-3 border border-border rounded-md bg-muted/20">
-                <img
-                  src={imagePreview}
-                  alt="Selected image preview"
-                  className="w-24 h-16 object-cover rounded border border-border flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{imageFileName}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Image selected and ready to upload</p>
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={addNewsMutation.isPending}
-                      className="text-xs h-7"
-                    >
-                      <Upload className="w-3 h-3 mr-1" />
-                      Change
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveImage}
-                      disabled={addNewsMutation.isPending}
-                      className="text-xs h-7 text-destructive hover:text-destructive"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Upload button */
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={addNewsMutation.isPending}
-                className="w-full flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-border rounded-md bg-muted/10 hover:bg-muted/30 hover:border-accent/50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                aria-label="Click to upload an image from your device"
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <select
+                id="category"
+                name="category"
+                value={form.category === NewsCategory.movie ? 'movie' : 'political'}
+                onChange={handleCategoryChange}
+                className="mt-1 w-full border border-input rounded px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <Upload className="w-8 h-8 text-muted-foreground" />
-                <div className="text-center">
-                  <p className="text-sm font-medium text-foreground">Click to upload image</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Supports JPEG, PNG, GIF, WebP
-                  </p>
-                </div>
-              </button>
-            )}
+                <option value="political">Political</option>
+                <option value="movie">Movie</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="sourceUrl">Source URL (optional)</Label>
+              <Input
+                id="sourceUrl"
+                name="sourceUrl"
+                value={form.sourceUrl}
+                onChange={handleFormChange}
+                placeholder="https://example.com/article"
+                className="mt-1"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label>Article Image (optional)</Label>
+              <div className="mt-1">
+                {imagePreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-20 w-32 object-cover rounded border border-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-destructive/80"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    {imageFileName && (
+                      <p className="text-xs text-muted-foreground mt-1 truncate max-w-[8rem]">
+                        {imageFileName}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded px-3 py-2 text-sm text-muted-foreground hover:border-accent hover:text-accent transition-colors w-fit">
+                    <ImageIcon className="w-4 h-4" />
+                    <span>Upload image</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end pt-2">
             <Button
               type="submit"
               disabled={addNewsMutation.isPending || actorFetching}
-              className="min-w-[140px]"
+              className="bg-accent hover:bg-accent/90 text-white"
             >
               {addNewsMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Publishing...
+                  Adding…
                 </>
               ) : (
                 <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Publish Article
+                  <Upload className="w-4 h-4 mr-2" />
+                  Add Article
                 </>
               )}
             </Button>
@@ -443,119 +613,105 @@ export default function AdminPage() {
         </form>
       </section>
 
-      {/* Manage Articles */}
-      <section className="bg-card border border-border rounded-lg p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Newspaper className="w-5 h-5 text-accent" />
-            <h2 className="text-xl font-bold text-foreground">Manage Articles</h2>
-            {!articlesLoading && (
-              <Badge variant="secondary" className="ml-1">
-                {articles.length}
+      {/* ── Article Management ── */}
+      <section className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-foreground">All Articles</h2>
+            <Badge variant="secondary">{articles.length}</Badge>
+            {expiredCount > 0 && (
+              <Badge variant="destructive" className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {expiredCount} expired
               </Badge>
             )}
           </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={purgeExpiredMutation.isPending}
-                className="text-destructive border-destructive/30 hover:bg-destructive/10"
-              >
-                {purgeExpiredMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4 mr-2" />
-                )}
-                Purge Expired
-                {expiredCount > 0 && (
-                  <Badge variant="destructive" className="ml-2 text-xs">
-                    {expiredCount}
-                  </Badge>
-                )}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Purge Expired Articles</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete all expired articles from the database. This action
-                  cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handlePurge}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {expiredCount > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={purgeExpiredMutation.isPending}
+                  className="text-destructive border-destructive hover:bg-destructive hover:text-white"
                 >
-                  Purge All Expired
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  {purgeExpiredMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-1" />
+                  )}
+                  Purge Expired
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Purge Expired Articles?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all {expiredCount} expired article(s). This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handlePurge}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    Purge
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
 
         {articlesLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            <span className="ml-2 text-muted-foreground">Loading articles...</span>
+            <Loader2 className="w-6 h-6 animate-spin text-accent" />
+            <span className="ml-2 text-muted-foreground">Loading articles…</span>
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p>No articles found. Add your first article above.</p>
+            <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
+            <p>No articles yet. Add one above or fetch from a news source.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="divide-y divide-border">
             {articles.map((article) => {
               const expired = isExpired(article.expiresAt);
               return (
                 <div
                   key={article.id}
-                  className={`flex items-start gap-4 p-4 rounded-lg border ${
-                    expired
-                      ? 'border-border/50 bg-muted/30 opacity-60'
-                      : 'border-border bg-background'
-                  }`}
+                  className={`px-6 py-4 flex items-start justify-between gap-4 ${expired ? 'opacity-60 bg-muted/30' : ''}`}
                 >
-                  {article.imageData && (
-                    <img
-                      src={article.imageData}
-                      alt={article.title}
-                      className="w-16 h-12 object-cover rounded flex-shrink-0"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 flex-wrap">
-                      <h3
-                        className={`font-semibold text-sm leading-tight ${
-                          expired ? 'line-through text-muted-foreground' : 'text-foreground'
-                        }`}
-                      >
-                        {article.title}
-                      </h3>
-                      {expired && (
-                        <Badge variant="destructive" className="text-xs flex-shrink-0">
-                          Expired
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <Badge
-                        variant="outline"
-                        className="text-xs flex-shrink-0 capitalize"
+                        variant={
+                          article.category === NewsCategory.movie ? 'secondary' : 'default'
+                        }
+                        className="text-xs"
                       >
                         {article.category === NewsCategory.movie ? 'Movie' : 'Political'}
                       </Badge>
+                      {expired && (
+                        <Badge variant="destructive" className="text-xs">
+                          Expired
+                        </Badge>
+                      )}
+                      {article.sourceUrl && (
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {article.sourceUrl}
+                        </span>
+                      )}
                     </div>
+                    <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2">
+                      {article.title}
+                    </h3>
                     <p className="text-xs text-muted-foreground mt-1">
                       By {article.author} · {article.publicationDate}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       <Clock className="w-3 h-3" />
                       Expires: {formatExpiry(article.expiresAt)}
                     </p>
@@ -565,15 +721,19 @@ export default function AdminPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="flex-shrink-0 text-muted-foreground hover:text-destructive"
                         disabled={deleteNewsMutation.isPending}
+                        className="text-muted-foreground hover:text-destructive shrink-0"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {deleteNewsMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Article</AlertDialogTitle>
+                        <AlertDialogTitle>Delete Article?</AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to delete "{article.title}"? This action cannot be
                           undone.
@@ -583,7 +743,7 @@ export default function AdminPage() {
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => handleDelete(article.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          className="bg-destructive hover:bg-destructive/90"
                         >
                           Delete
                         </AlertDialogAction>
